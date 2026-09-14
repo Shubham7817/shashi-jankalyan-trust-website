@@ -125,20 +125,17 @@ export default function Home() {
               </div>
 
               {/* Learn More */}
-              <a
-                href="/our-work"
+              <Link
+                to="/our-work"
                 className="group/link flex shrink-0 items-center gap-2 text-sm font-bold text-rose-600 transition-colors hover:text-rose-700"
               >
-                <span>
+                <span className="flex flex-col leading-4">
                   Learn
                   <br />
                   more
                 </span>
+              </Link>
 
-                <span className="text-xl transition-transform duration-300 group-hover/link:translate-x-1">
-                  →
-                </span>
-              </a>
 
             </div>
           </div>

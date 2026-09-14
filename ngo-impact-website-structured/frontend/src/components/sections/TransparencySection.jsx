@@ -1,5 +1,13 @@
 import SectionTitle from "../ui/SectionTitle";
 import DocumentCard from "../common/DocumentCard";
+import img1 from "../../assets/image2/80g-certificate.pdf";
+import img2 from "../../assets/image2/csr-certificate.pdf";
+import img3 from "../../assets/image2/niti-aayog.pdf";
+import img4 from "../../assets/image2/12ab-certificate.pdf";
+import img5 from "../../assets/image2/msme-certificate.pdf";
+
+
+
 const docs = [
   {
     title: "Trust Registration",
@@ -19,28 +27,28 @@ const docs = [
     title: "80G Registration",
     value: "AAZTS4557P25PT02",
     description: "CIT Exemption, Patna (Shiv Swaroop Singh) · 25 June 2026",
-    documentUrl: "/src/assets/image2/80g-certificate.pdf",
+    documentUrl: img1,
     status: "Available",
   },
   {
     title: "CSR Registration",
     value: "CSR00013783",
     description: "Ministry of Corporate Affairs,26 Aug 2021",
-    documentUrl: "/src/assets/image2/csr-certificate.pdf",
+    documentUrl: img2,
     status: "Available",
   },
   {
     title: "NGO Darpan NITI Aayog",
     value: "32456789",
     description: "Official registration details of the organization.",
-    documentUrl: "/src/assets/image2/niti-aayog.pdf",
+    documentUrl: img3,
     status: "Available",
   },
   {
     title: "12AB Income Tax Registration",
     value: "AAZTS4557P25PT01",
     description: "CIT Exemption, Patna · 3 September 2025",
-    documentUrl: "/src/assets/image2/12ab-certificate.pdf",
+    documentUrl: img4,
     status: "Available",
   },
   // {
@@ -54,7 +62,7 @@ const docs = [
     title: "Udyam MSME Registration",
     value: "UDYAM-BR-32-0002779",
     description: "Ministry of MSME, Govt. of India · 16 September 2022",
-    documentUrl: "/src/assets/image2/msme-certificate.pdf",
+    documentUrl: img5,
     status: "Available",
   },  
 ];
