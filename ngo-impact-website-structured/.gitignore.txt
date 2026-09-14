@@ -1,0 +1,12 @@
+# Node / React ignores
+**/node_modules/
+**/build/
+**/.env
+
+# IntelliJ / Java ignores
+**/.idea/
+**/out/
+**/target/
+**/*.class
+**/.gradle/
+**/build/
