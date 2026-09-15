@@ -42,7 +42,7 @@ public class ContactService {
 
     private void sendEmailNotification(ContactRequest request) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo("shubham8936878299@gmail.com"); // Organization Email
+        mailMessage.setTo("shashijankalyantrast012345@gmail.com"); // Organization Email
         mailMessage.setSubject("New Contact Request: " + request.getSubject());
 
         String emailBody = "You have received a new message from your website contact form.\n\n"
