@@ -13,7 +13,7 @@ public class CorsConfig
             CorsRegistry registry
     ) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins("http://shashi-jankalyan-trust-website-dusky.vercel.app")
                 .allowedMethods("GET", "POST","PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(false);
