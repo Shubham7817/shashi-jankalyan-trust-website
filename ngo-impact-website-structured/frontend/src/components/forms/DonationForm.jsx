@@ -23,7 +23,7 @@ export default function DonationForm() {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/payment/volunteers");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/volunteers`);
         if (response.ok) {
           const data = await response.json();
           setVolunteers(data);

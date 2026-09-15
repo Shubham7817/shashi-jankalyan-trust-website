@@ -12,7 +12,7 @@ export default function Donate() {
   useEffect(() => {
     const fetchDonors = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/payment/recent-donors");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/recent-donors`);
         if (response.ok) {
           const data = await response.json();
           setRecentDonors(data);
