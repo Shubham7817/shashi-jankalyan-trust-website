@@ -23,7 +23,7 @@ public class PaymentService {
 
     private final RazorpayClient razorpayClient;
     private final DonationRepository donationRepository;
-    private final JavaMailSender mailSender;
+//    private final JavaMailSender mailSender;
 
     @Value("${razorpay.key.secret}")
     private String razorpayKeySecret;
@@ -31,7 +31,7 @@ public class PaymentService {
     public PaymentService(RazorpayClient razorpayClient, DonationRepository donationRepository, JavaMailSender mailSender) {
         this.razorpayClient = razorpayClient;
         this.donationRepository = donationRepository;
-        this.mailSender = mailSender;
+//        this.mailSender = mailSender;
     }
 
     public Map<String, Object> createOrder(CreateOrderRequest request) throws Exception {
@@ -85,10 +85,10 @@ public class PaymentService {
                 // ==========================================
                 // THE FIX: Run Notifications in the Background
                 // ==========================================
-                CompletableFuture.runAsync(() -> {
-                    sendDonationEmail(donation);
-                    sendDonationSms(donation);
-                });
+//                CompletableFuture.runAsync(() -> {
+//                    sendDonationEmail(donation);
+//                    sendDonationSms(donation);
+//                });
 
                 // Immediately return success to React so it redirects instantly
                 return Map.of("success", true, "message", "Payment verified.");
@@ -102,26 +102,26 @@ public class PaymentService {
             return Map.of("success", false, "message", "Error verifying payment.");
         }
     }
+//    private void sendDonationEmail(Donation donation) {
+//        try {
+//            SimpleMailMessage message = new SimpleMailMessage();
+//            message.setTo(donation.getEmail());
+//            message.setSubject("Thank you for your donation!");
+//            message.setText("Dear " + donation.getName() + ",\n\n" +
+//                    "Thank you for your generous donation of ₹" + donation.getAmount() + ".\n" +
+//                    "Transaction ID: " + donation.getGatewayTransactionId() + "\n" +
+//                    "Payment Method: " + donation.getPaymentMethod().toUpperCase() + "\n\n" +
+//                    "Your support makes a huge difference.\n\nShashi Jan Kalyan Trust");
+//            mailSender.send(message);
+//        } catch (Exception e) {
+//            System.err.println("Failed to send email: " + e.getMessage());
+//        }
+//    }
 
-    private void sendDonationEmail(Donation donation) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(donation.getEmail());
-            message.setSubject("Thank you for your donation!");
-            message.setText("Dear " + donation.getName() + ",\n\n" +
-                    "Thank you for your generous donation of ₹" + donation.getAmount() + ".\n" +
-                    "Transaction ID: " + donation.getGatewayTransactionId() + "\n" +
-                    "Payment Method: " + donation.getPaymentMethod().toUpperCase() + "\n\n" +
-                    "Your support makes a huge difference.\n\nShashi Jan Kalyan Trust");
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("Failed to send email: " + e.getMessage());
-        }
-    }
 
-    private void sendDonationSms(Donation donation) {
-        // SMS integration requires a 3rd party provider (like Twilio, MSG91, AWS SNS).
-        // You will place their API call here using WebClient or RestTemplate.
-        System.out.println("Triggering SMS to " + donation.getPhone() + ": Thank you for donating ₹" + donation.getAmount());
-    }
+//    private void sendDonationSms(Donation donation) {
+//        // SMS integration requires a 3rd party provider (like Twilio, MSG91, AWS SNS).
+//        // You will place their API call here using WebClient or RestTemplate.
+//        System.out.println("Triggering SMS to " + donation.getPhone() + ": Thank you for donating ₹" + donation.getAmount());
+//    }
 }

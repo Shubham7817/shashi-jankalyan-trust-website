@@ -13,11 +13,11 @@ import java.util.Map;
 public class ContactService {
 
     private final ContactRepository contactRepository;
-    private final JavaMailSender mailSender;
+//    private final JavaMailSender mailSender;
 
     public ContactService(ContactRepository contactRepository, JavaMailSender mailSender) {
         this.contactRepository = contactRepository;
-        this.mailSender = mailSender;
+//        this.mailSender = mailSender;
     }
 
     public Map<String, Object> processContactMessage(ContactRequest request) {
@@ -32,7 +32,7 @@ public class ContactService {
             contactRepository.save(message);
 
             // 2. Send Email Notification
-            sendEmailNotification(request);
+//            sendEmailNotification(request);
 
             return Map.of("success", true, "message", "Your message has been sent successfully.");
         } catch (Exception e) {
@@ -40,19 +40,19 @@ public class ContactService {
         }
     }
 
-    private void sendEmailNotification(ContactRequest request) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo("shashijankalyantrast012345@gmail.com"); // Organization Email
-        mailMessage.setSubject("New Contact Request: " + request.getSubject());
-
-        String emailBody = "You have received a new message from your website contact form.\n\n"
-                + "Name: " + request.getName() + "\n"
-                + "Email: " + request.getEmail() + "\n"
-                + "Phone: " + request.getPhone() + "\n"
-                + "Subject: " + request.getSubject() + "\n\n"
-                + "Message:\n" + request.getMessage();
-
-        mailMessage.setText(emailBody);
-        mailSender.send(mailMessage);
-    }
+//    private void sendEmailNotification(ContactRequest request) {
+//        SimpleMailMessage mailMessage = new SimpleMailMessage();
+//        mailMessage.setTo("shashijankalyantrast012345@gmail.com"); // Organization Email
+//        mailMessage.setSubject("New Contact Request: " + request.getSubject());
+//
+//        String emailBody = "You have received a new message from your website contact form.\n\n"
+//                + "Name: " + request.getName() + "\n"
+//                + "Email: " + request.getEmail() + "\n"
+//                + "Phone: " + request.getPhone() + "\n"
+//                + "Subject: " + request.getSubject() + "\n\n"
+//                + "Message:\n" + request.getMessage();
+//
+//        mailMessage.setText(emailBody);
+//        mailSender.send(mailMessage);
+//    }
 }
