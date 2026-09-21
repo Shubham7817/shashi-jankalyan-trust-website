@@ -91,7 +91,7 @@ public class DashboardController {
         report.setUser(user.get());
 
         // Set default status as shown in your dashboard
-        report.setApprovalStatus("Under Review");
+//        report.setApprovalStatus("Under Review");
 
         // Save to the daily_work_reports table
         DailyWorkReport savedReport = reportRepo.save(report);
