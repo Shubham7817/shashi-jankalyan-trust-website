@@ -40,7 +40,7 @@ const handleSubmit = async (e) => {
     const volunteerId = sessionStorage.getItem("volunteerId");
 
     try {
-      const response = await fetch(`http://localhost:8080/api/reports/${volunteerId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/${volunteerId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
