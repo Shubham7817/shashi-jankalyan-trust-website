@@ -20,12 +20,15 @@ import Livelihood from "./pages/Livelihood";
 import Awareness from "./pages/Awareness";
 import Environment from "./pages/Environment";
 import WomenSkill from "./pages/WomenSkill";
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 export default function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/about" element={<About />} />
         <Route path="/our-work" element={<OurWork />} />
         <Route path="/projects" element={<Projects />} />
@@ -35,6 +38,7 @@ export default function App() {
         <Route path="/donate" element={<Donate />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/news" element={<News />} />
+        <Route path="/admin" element={<AdminDashboard />} /> 
         <Route path="/our-work/women-skills" element={<WomenSkill />} />
         <Route path="/our-work/education" element={<Education />} />
         <Route path="/our-work/healthcare" element={<HealthCare />} />

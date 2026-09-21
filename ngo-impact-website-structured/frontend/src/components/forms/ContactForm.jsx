@@ -28,6 +28,7 @@ export default function ContactForm() {
     try {
       setIsLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact/submit`, {
+      // const response = await fetch("http://localhost:8080/api/contact/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(d),
@@ -158,3 +159,37 @@ export default function ContactForm() {
 
 
 
+
+
+
+
+
+
+
+
+// How to Create a Gmail App Password
+// Google requires you to generate a special 16-character password to allow Spring Boot to send emails. Here is the step-by-step process:
+
+// Log in to your Google Account: Go to myaccount.google.com and log in with shubham8936878299@gmail.com.
+
+// Go to Security: On the left-hand navigation panel, click on Security.
+
+// Turn on 2-Step Verification:
+
+// Scroll down to the "How you sign in to Google" section.
+
+// If 2-Step Verification is off, click it and follow the prompts to turn it on (you will need your phone). You cannot create an App Password without this turned on.
+
+// Find App Passwords:
+
+// Once 2-Step Verification is active, click on 2-Step Verification again and scroll to the very bottom of the page to find App passwords.
+
+// (Note: Alternatively, you can type "App passwords" into the search bar at the top of your Google Account page).
+
+// Create the Password:
+
+// In the "App name" field, type something like "Spring Boot Backend" or "NGO Website" so you remember what it is for.
+
+// Click Create.
+
+// Copy the Code: Google will show you a popup with a 16-character code (e.g., abcd efgh ijkl mnop).

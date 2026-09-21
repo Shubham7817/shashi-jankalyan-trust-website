@@ -5,6 +5,7 @@ import img2 from "../../assets/image2/csr-certificate.pdf";
 import img3 from "../../assets/image2/niti-aayog.pdf";
 import img4 from "../../assets/image2/12ab-certificate.pdf";
 import img5 from "../../assets/image2/msme-certificate.pdf";
+import img6 from "../../assets/image2/auditors-report.pdf";
 
 
 
@@ -51,6 +52,7 @@ const docs = [
     documentUrl: img4,
     status: "Available",
   },
+
   // {
   //   title: "Financial Reports",
   //   value: "[sdfasdfas]",
@@ -65,6 +67,13 @@ const docs = [
     documentUrl: img5,
     status: "Available",
   },  
+    {
+    title: "Auditor's Report",
+    value: "UDIN - : 26454374IAIVKG2841",
+    description: "SANJAY KUMAR JHA & ASSOCIATES Chartered Accountants · Date: 31st March 2026",
+    documentUrl: img6,
+    status: "Available",
+  }
 ];
 export default function TransparencySection() {
   return (

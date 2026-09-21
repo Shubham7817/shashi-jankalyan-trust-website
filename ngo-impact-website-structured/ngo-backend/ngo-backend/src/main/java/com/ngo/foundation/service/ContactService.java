@@ -15,7 +15,7 @@ public class ContactService {
     private final ContactRepository contactRepository;
 //    private final JavaMailSender mailSender;
 
-    public ContactService(ContactRepository contactRepository, JavaMailSender mailSender) {
+    public ContactService(ContactRepository contactRepository) {
         this.contactRepository = contactRepository;
 //        this.mailSender = mailSender;
     }

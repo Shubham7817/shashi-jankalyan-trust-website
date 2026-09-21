@@ -28,7 +28,7 @@ public class PaymentService {
     @Value("${razorpay.key.secret}")
     private String razorpayKeySecret;
 
-    public PaymentService(RazorpayClient razorpayClient, DonationRepository donationRepository, JavaMailSender mailSender) {
+    public PaymentService(RazorpayClient razorpayClient, DonationRepository donationRepository) {
         this.razorpayClient = razorpayClient;
         this.donationRepository = donationRepository;
 //        this.mailSender = mailSender;
