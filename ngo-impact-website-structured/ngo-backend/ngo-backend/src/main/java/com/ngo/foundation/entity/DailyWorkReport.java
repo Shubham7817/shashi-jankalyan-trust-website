@@ -25,8 +25,6 @@ public class DailyWorkReport {
     @Column(nullable = false)
     private LocalDate activityDate;
 
-    @Setter
-    @Getter
     @Column(nullable = false)
     private String activityType;
 
@@ -36,10 +34,8 @@ public class DailyWorkReport {
 
     private LocalTime startTime;
     private LocalTime endTime;
-    @Setter
-    @Getter
-    private Double totalHours;
 
+    private Double totalHours;
     private Integer totalBeneficiaries;
 
     @Column(columnDefinition = "TEXT")
@@ -48,6 +44,10 @@ public class DailyWorkReport {
     private String projectName;
     private String projectId;
 
-//    private String approvalStatus = "Under Review";
+    // --- NEW FIELDS ADDED HERE ---
+    private Integer influencedContributors;
+    private Double totalContributionAmount;
+    private String evidenceFile;
 
+//    private String approvalStatus = "Under Review";
 }

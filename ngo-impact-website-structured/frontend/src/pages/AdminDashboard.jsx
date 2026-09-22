@@ -7,10 +7,7 @@ export default function AdminDashboard() {
   const [allReports, setAllReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
-
-
-
-    useEffect(() => {
+  useEffect(() => {
     // Check the username instead of the role
     const currentUsername = sessionStorage.getItem("username");
     
@@ -20,7 +17,7 @@ export default function AdminDashboard() {
     }
 
     const fetchAllReports = async () => {
-        try {
+      try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
         // const response = await fetch(`http://localhost:8080/api/admin/reports`);
         if (response.ok) {
@@ -36,7 +33,6 @@ export default function AdminDashboard() {
 
     fetchAllReports();
   }, [navigate]);
-
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -65,13 +61,10 @@ export default function AdminDashboard() {
           <ShieldCheck className="h-6 w-6 text-green-400" />
           <h1 className="font-serif text-xl font-bold tracking-wide">Admin Portal</h1>
         </div>
-        {/* <button onClick={handleLogout} className="flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-bold hover:bg-red-700">
-          <LogOut className="h-4 w-4" /> Logout
-        </button> */}
       </header>
 
       {/* Admin Main Content */}
-      <main className="mx-auto max-w-7xl p-6 lg:p-8">
+      <main className="mx-auto max-w-[95%] lg:max-w-7xl p-6 lg:p-8">
         <div className="mb-6 flex items-center gap-2">
           <Clock className="h-6 w-6 text-gray-700" />
           <h2 className="text-2xl font-bold text-gray-900">All Volunteer Submissions</h2>
@@ -79,15 +72,20 @@ export default function AdminDashboard() {
 
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-600">
+            <table className="w-full text-left text-sm text-gray-600 whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-700">
                 <tr>
                   <th className="px-6 py-4 font-bold">Date</th>
                   <th className="px-6 py-4 font-bold">Volunteer Username</th>
                   <th className="px-6 py-4 font-bold">Activity Type</th>
+                  <th className="px-6 py-4 font-bold">Program Name</th>
                   <th className="px-6 py-4 font-bold">Location</th>
                   <th className="px-6 py-4 font-bold">Hours</th>
-                  {/* <th className="px-6 py-4 font-bold">Status</th> */}
+                  {/* NEW HEADERS ADDED HERE */}
+                  <th className="px-6 py-4 font-bold">Beneficiaries</th>
+                  <th className="px-6 py-4 font-bold">Influenced</th>
+                  <th className="px-6 py-4 font-bold">Collected (₹)</th>
+                  <th className="px-6 py-4 font-bold">Evidence</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -96,22 +94,39 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 font-medium text-gray-900">{formatDate(report.activityDate)}</td>
                     <td className="px-6 py-4 font-semibold text-blue-700">{report.user?.username || "Unknown"}</td>
                     <td className="px-6 py-4">{report.activityType}</td>
-                    <td className="px-6 py-4">{report.activityLocation}</td>
-                    <td className="px-6 py-4 font-medium">{report.totalHours}</td>
-                    {/* <td className="px-6 py-4">
-                      <select 
-                        defaultValue={report.approvalStatus}
-                        className="rounded-md border border-gray-300 px-2 py-1 text-xs font-bold focus:border-[#0d4a30] focus:ring-1 focus:ring-[#0d4a30]"
-                      >
-                        <option value="Under Review">Under Review</option>
-                        <option value="Approved">Approve</option>
-                        <option value="Needs Correction">Request Correction</option>
-                      </select>
-                    </td> */}
+                    <td className="px-6 py-4">{report.programName}</td>
+                    <td className="px-6 py-4 truncate max-w-50" title={report.activityLocation}>
+                      {report.activityLocation}
+                    </td>
+                    <td className="px-6 py-4 font-medium">{report.totalHours || 0}</td>
+                    
+                    {/* NEW DATA CELLS ADDED HERE */}
+                    <td className="px-6 py-4">{report.totalBeneficiaries || 0}</td>
+                    <td className="px-6 py-4">{report.influencedContributors || "-"}</td>
+                    <td className="px-6 py-4 font-medium text-green-700">
+                      {report.totalContributionAmount ? `₹${report.totalContributionAmount}` : "-"}
+                    </td>
+                    <td className="px-6 py-4">
+                      {report.evidenceFile ? (
+                        <a 
+                          href={`${import.meta.env.VITE_API_URL}/uploads/evidence/${report.evidenceFile}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"
+                        >
+                          View File
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-400 font-medium px-2">None</span>
+                      )}
+                    </td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan="6" className="py-8 text-center text-gray-500">No reports have been submitted yet.</td>
+                    {/* Updated colSpan from 6 to 9 to match new column count */}
+                    <td colSpan="9" className="py-12 text-center text-gray-500 font-medium">
+                      No reports have been submitted yet.
+                    </td>
                   </tr>
                 )}
               </tbody>

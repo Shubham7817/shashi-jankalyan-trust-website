@@ -123,9 +123,22 @@ export default function Dashboard() {
         </nav>
       </aside>
 
-      {/* Main Content Area */}
+{/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">
         
+        {/* NEW: Mobile Header Bar (Hidden on large screens) */}
+        <div className="flex items-center justify-between bg-[#0d4a30] p-4 text-white shadow-md lg:hidden">
+          <div className="font-serif text-lg font-bold tracking-wide">
+            {profile ? `Welcome, ${profile.fullName.split(' ')[0]}` : "Dashboard"}
+          </div>
+          <button 
+            onClick={() => setSidebarOpen(true)} 
+            className="rounded p-1 hover:bg-white/20 transition-colors"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
+
         {/* 3. CONDITIONAL DASHBOARD CONTENT */}
         
         {activeView === "overview" && (

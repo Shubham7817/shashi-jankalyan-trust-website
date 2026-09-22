@@ -10,6 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +86,12 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardData);
     }
 
-    @PostMapping("/reports/{userId}")
-    public ResponseEntity<?> submitWorkReport(@PathVariable Long userId, @RequestBody DailyWorkReport report) {
+    @PostMapping(value = "/reports/{userId}", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> submitWorkReport(
+            @PathVariable Long userId,
+            @RequestPart("report") DailyWorkReport report,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
         Optional<UserCredential> user = userRepo.findById(userId);
 
         if (user.isEmpty()) {
@@ -90,14 +101,42 @@ public class DashboardController {
         // Link the report to the specific user
         report.setUser(user.get());
 
-        // Set default status as shown in your dashboard
-//        report.setApprovalStatus("Under Review");
+        // Ensure status is set
+//        if (report.getApprovalStatus() == null) {
+//            report.setApprovalStatus("Under Review");
+//        }
 
-        // Save to the daily_work_reports table
+        // Handle File Upload if a file was attached
+        if (file != null && !file.isEmpty()) {
+            try {
+                String uploadDir = "uploads/evidence/";
+                Path uploadPath = Paths.get(uploadDir);
+
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                // Generate a unique file name
+                String originalFileName = file.getOriginalFilename();
+                String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+                Path filePath = uploadPath.resolve(uniqueFileName);
+
+                // Save file to local folder
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Save the generated file name into the database entity
+                report.setEvidenceFile(uniqueFileName);
+
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Could not upload the file: " + e.getMessage());
+            }
+        }
+
         DailyWorkReport savedReport = reportRepo.save(report);
-
         return ResponseEntity.ok(savedReport);
     }
+
+
     @GetMapping("/reports/user/{userId}")
     public ResponseEntity<?> getAllUserReports(@PathVariable Long userId) {
         // Fetch all reports for the user, ordered by date descending

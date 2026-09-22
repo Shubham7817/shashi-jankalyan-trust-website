@@ -16,53 +16,49 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  // Initialize login state based on existing sessionStorage
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in when the navbar mounts
     if (sessionStorage.getItem("volunteerId")) {
       setIsLoggedIn(true);
     }
   }, []);
 
   const handleLoginSubmit = async (e) => {
-      e.preventDefault();
-      const username = e.target.username.value;
-      const password = e.target.password.value;
+    e.preventDefault();
+    const username = e.target.username.value;
+    const password = e.target.password.value;
 
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        // const response = await fetch(`http://localhost:8080/api/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-        });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      // const response = await fetch(`http://localhost:8080/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Save ID and Username to session storage
-          sessionStorage.setItem("volunteerId", data.userId);
-          sessionStorage.setItem("username", username); // Add this line
-          
-          setIsLoggedIn(true);
-          setShowLogin(false);
-          
-          // Route based exactly on the username
-          if (username === "admin") {
-            navigate("/admin");
-          } else {
-            navigate("/dashboard");
-          }
+      if (response.ok) {
+        const data = await response.json();
+        
+        sessionStorage.setItem("volunteerId", data.userId);
+        sessionStorage.setItem("username", username); 
+        
+        setIsLoggedIn(true);
+        setShowLogin(false);
+        
+        if (username === "admin") {
+          navigate("/admin");
         } else {
-          alert("Invalid username or password");
+          navigate("/dashboard");
         }
-      } catch (error) {
-        console.error("Login failed", error);
+      } else {
+        alert("Invalid username or password");
       }
-    };
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
 
   const handleLogout = () => {
     sessionStorage.removeItem("volunteerId");
@@ -91,19 +87,22 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <nav className="hidden gap-4 text-sm lg:flex">
-            {links.map(([to, n]) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  isActive ? "font-bold text-green-700" : ""
-                }
-              >
-                {n}
-              </NavLink>
-            ))}
-          </nav>
+          {/* Nav links hidden when logged in */}
+          {!isLoggedIn && (
+            <nav className="hidden gap-4 text-sm lg:flex">
+              {links.map(([to, n]) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    isActive ? "font-bold text-green-700" : ""
+                  }
+                >
+                  {n}
+                </NavLink>
+              ))}
+            </nav>
+          )}
 
           {/* Desktop Buttons */}
           <div className="hidden lg:flex items-center gap-4">
@@ -115,16 +114,18 @@ export default function Navbar() {
                 Logout
               </button>
             ) : (
-              <button
-                onClick={() => setShowLogin(true)}
-                className="rounded-md border-2 border-green-700 px-4 py-2 text-sm font-bold text-green-700 transition-colors hover:bg-green-50"
-              >
-                Login
-              </button>
+              <>
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="rounded-md border-2 border-green-700 px-4 py-2 text-sm font-bold text-green-700 transition-colors hover:bg-green-50"
+                >
+                  Login
+                </button>
+                <Button to="/donate" variant="accent">
+                  Donate Now
+                </Button>
+              </>
             )}
-            <Button to="/donate" variant="accent">
-              Donate Now
-            </Button>
           </div>
 
           <button
@@ -139,7 +140,8 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {open && (
           <nav className="grid gap-1 border-t bg-white p-4 lg:hidden">
-            {links.map(([to, n]) => (
+            {/* Nav links hidden when logged in */}
+            {!isLoggedIn && links.map(([to, n]) => (
               <NavLink
                 key={to}
                 onClick={() => setOpen(false)}
@@ -149,6 +151,7 @@ export default function Navbar() {
                 {n}
               </NavLink>
             ))}
+            
             <div className="mt-4 flex flex-col gap-3">
               {isLoggedIn ? (
                 <button
@@ -161,21 +164,23 @@ export default function Navbar() {
                   Logout
                 </button>
               ) : (
-                <button
-                  onClick={() => {
-                    setOpen(false);
-                    setShowLogin(true);
-                  }}
-                  className="w-full rounded-md border-2 border-green-700 px-4 py-2 font-bold text-green-700 hover:bg-green-50"
-                >
-                  Login
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      setShowLogin(true);
+                    }}
+                    className="w-full rounded-md border-2 border-green-700 px-4 py-2 font-bold text-green-700 hover:bg-green-50"
+                  >
+                    Login
+                  </button>
+                  <div onClick={() => setOpen(false)}>
+                    <Button to="/donate" variant="accent">
+                      Donate Now
+                    </Button>
+                  </div>
+                </>
               )}
-              <div onClick={() => setOpen(false)}>
-                <Button to="/donate" variant="accent">
-                  Donate Now
-                </Button>
-              </div>
             </div>
           </nav>
         )}

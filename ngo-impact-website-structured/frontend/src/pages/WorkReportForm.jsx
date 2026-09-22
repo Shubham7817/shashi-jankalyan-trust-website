@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Save, Send , Loader2} from "lucide-react";
+import { ArrowLeft, Save, Send, Loader2 } from "lucide-react";
 
 export default function WorkReportForm({ profile, onBack, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -14,10 +14,15 @@ export default function WorkReportForm({ profile, onBack, onSuccess }) {
     totalBeneficiaries: "",
     outcome: "",
     projectName: "",
-    projectId: ""
+    projectId: "",
+    // NEW FIELDS added for influence-driven contributions
+    influencedContributors: "",
+    totalContributionAmount: ""
   });
 
+  const [attachment, setAttachment] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileError, setFileError] = useState("");
 
   // Auto-calculate Total Hours when times change
   useEffect(() => {
@@ -34,20 +39,51 @@ export default function WorkReportForm({ profile, onBack, onSuccess }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
+const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB limit
+      
+      if (file.size > maxSizeInBytes) {
+        setFileError("File size exceeds the 5MB limit. Please choose a smaller file.");
+        setAttachment(null);
+        e.target.value = null; // Instantly clears the invalid file from the input
+      } else {
+        setFileError("");
+        setAttachment(file);
+      }
+    } else {
+      // If the user clicks cancel in the file dialog
+      setFileError("");
+      setAttachment(null);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     const volunteerId = sessionStorage.getItem("volunteerId");
 
     try {
+      const submitData = new FormData();
+      
+      submitData.append(
+        "report", 
+        new Blob([JSON.stringify(formData)], { type: "application/json" })
+      );
+
+      if (attachment) {
+        submitData.append("file", attachment);
+      }
+
+      // const response = await fetch(`http://localhost:8080/api/reports/${volunteerId}`, {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/${volunteerId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: submitData,
       });
 
       if (response.ok) {
-        // 2. Change this from onBack() to onSuccess()
         onSuccess(); 
       } else {
         alert("Failed to submit report. Please try again.");
@@ -91,7 +127,8 @@ const handleSubmit = async (e) => {
                 <option value="Education">Education</option>
                 <option value="Health">Health</option>
                 <option value="Awareness">Awareness</option>
-                <option value="Awareness">Livelihood</option>
+                <option value="Livelihood">Livelihood</option>
+                <option value="Women Empowerment">Women Empowerment</option>
               </select>
             </div>
             <div>
@@ -101,7 +138,7 @@ const handleSubmit = async (e) => {
           </div>
         </section>
 
-        {/* 2. Location (Pre-filled) */}
+        {/* 2. Location */}
         <section>
           <div className="mb-4 flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">2</span>
@@ -141,7 +178,7 @@ const handleSubmit = async (e) => {
           </div>
         </section>
 
-        {/* 4. People Reached & Outcome */}
+        {/* 4. Impact & Outcome */}
         <section>
           <div className="mb-4 flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">4</span>
@@ -154,10 +191,7 @@ const handleSubmit = async (e) => {
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-gray-700">Project / Funding</label>
-              <select name="projectName" value={formData.projectName} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700">
-                <option value="">Select Project</option>
-                <option value="Rural Education Program">Rural Education Program</option>
-              </select>
+              <input type="text" name="projectName" value={formData.projectName} onChange={handleChange} required placeholder="Enter project name" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
             </div>
           </div>
           <div>
@@ -166,8 +200,72 @@ const handleSubmit = async (e) => {
           </div>
         </section>
 
+        {/* 5. NEW: Fundraising & Influence */}
+        <section>
+          <div className="mb-4 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">5</span>
+            <h3 className="font-bold text-gray-900">Fundraising & Influence (Optional)</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Influence-Driven Contributors</label>
+              <input 
+                type="number" 
+                name="influencedContributors" 
+                value={formData.influencedContributors} 
+                onChange={handleChange} 
+                min="0"
+                placeholder="Number of people" 
+                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" 
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Total Contributions (₹)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                <input 
+                  type="number" 
+                  name="totalContributionAmount" 
+                  value={formData.totalContributionAmount} 
+                  onChange={handleChange} 
+                  min="0"
+                  placeholder="Amount collected" 
+                  className="w-full rounded-md border border-gray-300 py-2 pl-8 pr-3 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" 
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. Evidence */}
+        <section>
+          <div className="mb-4 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">6</span>
+            <h3 className="font-bold text-gray-900">Evidence (Optional)</h3>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Photo or PDF</label>
+            <input 
+              type="file" 
+              accept=".jpg,.jpeg,.png,.pdf"
+              onChange={handleFileChange}
+              className={`w-full rounded-md border bg-gray-50 p-2 text-sm text-gray-600 focus:outline-none focus:ring-1 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#0d4a30] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#0a3a25] ${
+                fileError 
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-500" 
+                  : "border-gray-300 focus:border-green-700 focus:ring-green-700"
+              }`} 
+            />
+            
+            {/* Conditional Error Rendering */}
+            {fileError ? (
+              <p className="mt-1 text-xs font-bold text-red-600">{fileError}</p>
+            ) : (
+              <p className="mt-1 text-xs text-gray-500">Max size: 5MB. Formats: JPG, PNG, PDF.</p>
+            )}
+          </div>
+        </section>
+
         {/* Footer Actions */}
-{/* Footer Actions */}
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
           <button 
             type="button" 

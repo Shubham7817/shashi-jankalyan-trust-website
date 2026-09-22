@@ -13,8 +13,8 @@ export default function MyReportsView({ onBack }) {
     const fetchAllReports = async () => {
       const volunteerId = sessionStorage.getItem("volunteerId");
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
         // const response = await fetch(`http://localhost:8080/api/reports/user/${volunteerId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
         if (response.ok) {
           const data = await response.json();
           setReports(data);
@@ -55,7 +55,7 @@ export default function MyReportsView({ onBack }) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
+    <div className="mx-auto max-w-7xl rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-4 border-b border-gray-200 bg-[#0d4a30] p-4 text-white">
         <button onClick={onBack} className="rounded-full p-2 hover:bg-white/20 transition-colors">
@@ -110,7 +110,10 @@ export default function MyReportsView({ onBack }) {
                 <th className="px-4 py-3 font-bold">Activity Type</th>
                 <th className="px-4 py-3 font-bold">Hours</th>
                 <th className="px-4 py-3 font-bold">Beneficiaries</th>
-                {/* <th className="px-4 py-3 font-bold">Status</th> */}
+                {/* NEW HEADERS */}
+                <th className="px-4 py-3 font-bold">Influenced</th>
+                <th className="px-4 py-3 font-bold">Collected (₹)</th>
+                <th className="px-4 py-3 font-bold">Evidence</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -120,22 +123,35 @@ export default function MyReportsView({ onBack }) {
                     <td className="px-4 py-3 font-medium text-gray-900">{formatDate(report.activityDate)}</td>
                     <td className="px-4 py-3">{report.programName}</td>
                     <td className="px-4 py-3">{report.activityType}</td>
-                    <td className="px-4 py-3">{report.totalHours}</td>
-                    <td className="px-4 py-3">{report.totalBeneficiaries}</td>
-                    {/* <td className="px-4 py-3">
-                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                        report.approvalStatus === "Approved" ? "bg-green-100 text-green-700" :
-                        report.approvalStatus === "Under Review" ? "bg-yellow-100 text-yellow-700" :
-                        "bg-gray-100 text-gray-700"
-                      }`}>
-                        {report.approvalStatus || "Under Review"}
-                      </span>
-                    </td> */}
+                    <td className="px-4 py-3">{report.totalHours || 0}</td>
+                    <td className="px-4 py-3">{report.totalBeneficiaries || 0}</td>
+                    
+                    {/* NEW DATA CELLS */}
+                    <td className="px-4 py-3">{report.influencedContributors || "-"}</td>
+                    <td className="px-4 py-3 font-medium text-green-700">
+                      {report.totalContributionAmount ? `₹${report.totalContributionAmount}` : "-"}
+                    </td>
+                    {/* NEW EVIDENCE CELL */}
+                    <td className="px-4 py-3">
+                      {report.evidenceFile ? (
+                        <a 
+                          // href={`http://localhost:8080/uploads/evidence/${report.evidenceFile}`}
+                          href={`${import.meta.env.VITE_API_URL}/uploads/evidence/${report.evidenceFile}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"
+                        >
+                          View File
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-400 font-medium">None</span>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-gray-500">
+                  <td colSpan="7" className="py-8 text-center text-gray-500">
                     No reports found for the selected date.
                   </td>
                 </tr>
