@@ -22,6 +22,11 @@ import Environment from "./pages/Environment";
 import WomenSkill from "./pages/WomenSkill";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrivacyPolicy from "./components/legal/PrivacyPolicy";
+import RefundPolicy from "./components/legal/RefundPolicy";
+import TermsConditions from "./components/legal/TermsConditions";
+import SubscriptionTerms from "./components/legal/SubscriptionTerms";
+import ReferralTerms from "./components/legal/ReferralTerms";
 
 export default function App() {
   return (
@@ -49,6 +54,14 @@ export default function App() {
         <Route path="/donation-success" element={<DonationSuccess />} />
         <Route path="/donation-failed" element={<DonationFailed />} />
         <Route path="*" element={<NotFound />} />
+
+        {/* Razorpay Compliance Routes */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/terms-and-conditions" element={<TermsConditions />} />
+        <Route path="/subscription-terms" element={<SubscriptionTerms />} />
+        <Route path="/referral-terms" element={<ReferralTerms />} />
+        
       </Route>
     </Routes>
   );

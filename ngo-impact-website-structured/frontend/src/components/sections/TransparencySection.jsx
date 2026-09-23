@@ -26,7 +26,7 @@ const docs = [
   },
   {
     title: "80G Registration",
-    value: "AAZTS4557P25PT02",
+    value: "AAZTS4557PF2023101",
     description: "CIT Exemption, Patna (Shiv Swaroop Singh) · 25 June 2026",
     documentUrl: img1,
     status: "Available",
@@ -52,14 +52,6 @@ const docs = [
     documentUrl: img4,
     status: "Available",
   },
-
-  // {
-  //   title: "Financial Reports",
-  //   value: "[sdfasdfas]",
-  //   description: "Financial reports will be uploaded here.",
-  //   documentUrl: "/documents/uan_card.pdf",
-  //   status: "Unavailable",
-  // },
   {
     title: "Udyam MSME Registration",
     value: "UDYAM-BR-32-0002779",
