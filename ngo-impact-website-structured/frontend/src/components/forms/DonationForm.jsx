@@ -23,8 +23,7 @@ export default function DonationForm() {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/volunteers`);
-        // const response = await fetch("http://localhost:8080/api/payment/volunteers");
+        const response = await fetch("http://localhost:8080/api/payment/volunteers");
         if (response.ok) {
           const data = await response.json();
           setVolunteers(data);
@@ -76,7 +75,43 @@ export default function DonationForm() {
               razorpayOrderId: res.razorpay_order_id,
               razorpaySignature: res.razorpay_signature,
             });
-            navigate(verified?.success ? "/donation-success" : "/donation-failed");
+            
+            // --- CRITICAL FIX: Pass state to the success page ---
+            if (verified?.success) {
+
+            let referredByName = "None";
+              
+              if (formData.referredBy) {
+                // Look through the volunteers array you already fetched
+                const selectedVolunteer = volunteers.find(
+                  (vol) => vol.id.toString() === formData.referredBy.toString()
+                );
+                
+                if (selectedVolunteer) {
+                  referredByName = selectedVolunteer.name; // Extract just the name
+                }
+              }
+
+
+
+              navigate("/donation-success", {
+                state: {
+                  amount: finalAmount,
+                  gatewayTransactionId: res.razorpay_payment_id,
+                  name: formData.name,
+                  phone: formData.phone,
+                  // Passing default values for fields not in your current form
+                  city: formData.city, 
+                  state: formData.state,
+                  referredBy : referredByName,
+                  date: new Date().toLocaleDateString("en-GB")
+                }
+              });
+            } else {
+              navigate("/donation-failed");
+            }
+            // ----------------------------------------------------
+            
           } catch {
             navigate("/donation-failed");
           } finally { setLoading(false); }
@@ -91,7 +126,7 @@ export default function DonationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="card p-6">
+<form onSubmit={handleSubmit} className="card p-6">
       <h2 className="text-2xl font-bold">Choose your support</h2>
       
       <div className="mt-4 grid grid-cols-2 gap-3">
@@ -112,6 +147,12 @@ export default function DonationForm() {
         <input name="name" type="text" value={formData.name} onChange={handleChange} placeholder="Full Name" className="rounded-xl border p-3" />
         <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Email Address" className="rounded-xl border p-3" />
         <input name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="Phone Number" className="rounded-xl border p-3" />
+        
+        {/* NEW: City and State side-by-side */}
+        <div className="grid grid-cols-2 gap-3">
+          <input name="city" type="text" value={formData.city} onChange={handleChange} placeholder="City" className="w-full rounded-xl border p-3" />
+          <input name="state" type="text" value={formData.state} onChange={handleChange} placeholder="State" className="w-full rounded-xl border p-3" />
+        </div>
         
         {/* Replaced PAN with Referred By Dropdown */}  
         <select 

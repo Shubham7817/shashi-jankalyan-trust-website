@@ -18,8 +18,8 @@ export default function AdminDashboard() {
 
     const fetchAllReports = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
-        // const response = await fetch(`http://localhost:8080/api/admin/reports`);
+        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
+        const response = await fetch(`http://localhost:8080/api/admin/reports`);
         if (response.ok) {
           const data = await response.json();
           setAllReports(data);
@@ -109,7 +109,8 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4">
                       {report.evidenceFile ? (
                         <a 
-                          href={`${import.meta.env.VITE_API_URL}/uploads/evidence/${report.evidenceFile}`}
+                          href={`http://localhost:8080/uploads/evidence/${report.evidenceFile}`}
+                          // href={`${import.meta.env.VITE_API_URL}/uploads/evidence/${report.evidenceFile}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"

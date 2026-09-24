@@ -30,8 +30,8 @@ export default function Dashboard() {
 
     const fetchDashboard = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/${volunteerId}`);
-        // const response = await fetch(`http://localhost:8080/api/dashboard/${volunteerId}`);
+        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/${volunteerId}`);
+        const response = await fetch(`http://localhost:8080/api/dashboard/${volunteerId}`);
         if (response.ok) {
           const data = await response.json();
           setDashboardData(data);

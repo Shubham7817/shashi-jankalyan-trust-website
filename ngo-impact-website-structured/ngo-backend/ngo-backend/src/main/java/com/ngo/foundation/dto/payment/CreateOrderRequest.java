@@ -11,6 +11,8 @@ public class CreateOrderRequest {
     @NotBlank private String name;
     @NotBlank @Email private String email;
     @NotBlank private String phone;
+    private String state;
+    private String city;
     private String message;
     private String referredBy; // Replaced PAN
 }

@@ -4,12 +4,14 @@ import java.util.concurrent.CompletableFuture;
 import com.ngo.foundation.dto.payment.CreateOrderRequest;
 import com.ngo.foundation.dto.payment.PaymentVerificationRequest;
 import com.ngo.foundation.entity.Donation;
+import com.ngo.foundation.repository.ActualVolunteerRepository;
 import com.ngo.foundation.repository.DonationRepository;
 import com.razorpay.Order;
 import com.razorpay.Payment;
 import com.razorpay.RazorpayClient;
 import com.razorpay.Utils;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,6 +25,9 @@ public class PaymentService {
 
     private final RazorpayClient razorpayClient;
     private final DonationRepository donationRepository;
+
+    @Autowired
+    private ActualVolunteerRepository volunteerRepository;
 //    private final JavaMailSender mailSender;
 
     @Value("${razorpay.key.secret}")
@@ -49,8 +54,26 @@ public class PaymentService {
         donation.setName(request.getName());
         donation.setEmail(request.getEmail());
         donation.setPhone(request.getPhone());
-        donation.setReferredBy(request.getReferredBy());
+//        donation.setReferredBy(request.getReferredBy());
         donation.setPaymentStatus("PENDING");
+        donation.setCity(request.getCity());
+        donation.setState(request.getState());
+
+        String referredById = request.getReferredBy();
+        if (referredById != null && !referredById.trim().isEmpty()) {
+            try {
+                Long volId = Long.parseLong(referredById);
+                volunteerRepository.findById(volId).ifPresentOrElse(
+                        volunteer -> donation.setReferredBy(volunteer.getName()),
+                        () -> donation.setReferredBy("Self") // Fallback if ID is invalid
+                );
+            } catch (NumberFormatException e) {
+                // Fallback just in case the frontend sends a name directly instead of an ID
+                donation.setReferredBy(referredById);
+            }
+        } else {
+            donation.setReferredBy("Self");
+        }
         donationRepository.save(donation);
 
         return Map.of(
