@@ -175,9 +175,13 @@ export default function DonationSuccess() {
       {/* ========================================== */}
       {/* 2. HIDDEN PDF TEMPLATE (Strict Width Enforced) */}
       {/* ========================================== */}
-        <div className="mt-8 bg-gray-100 p-4 sm:p-8 rounded-xl border border-gray-200 flex justify-center">
-          <div className="w-full max-w-3xl bg-white p-5 sm:p-10 font-serif border-2 sm:border-4 border-double border-green-900 text-gray-900 shadow-sm text-left">
-            
+      <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none z-[-1]">
+        <div 
+          ref={receiptRef} 
+          style={{ width: "800px", minWidth: "800px", maxWidth: "800px", padding: "40px", backgroundColor: "#ffffff" }}
+          className="font-serif border-4 border-double border-green-900 text-gray-900 text-left"
+        >
+            {/* Header */}
             {/* Header */}
             <div className="text-center border-b-2 border-green-900 pb-4 mb-4 sm:mb-6">
               <p className="text-xs sm:text-sm font-bold">बिहार सरकार से पंजीकृत 90/2020 | 80G: AAZTS4557P25PT02</p>
@@ -248,8 +252,8 @@ export default function DonationSuccess() {
                 </div>
               </div>
             </div>
-          </div>
         </div>
+      </div>
     </main>
   );
 }
