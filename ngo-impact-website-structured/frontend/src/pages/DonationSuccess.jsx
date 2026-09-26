@@ -136,8 +136,7 @@ export default function DonationSuccess() {
               <p className="text-xs sm:text-sm text-gray-700 mt-4 font-medium">
                 * दान की राशी वापस नहीं दिया जायेगा, किन्तु उसके एवज में बाल विवाह, दहेज़ प्रथा, भ्रूण हत्या पर जागरूकता अभियान चलाया जाता है।
               </p>
-              {/* RESPONSIVE SIGNATURE BLOCK */}
-              <div className="mt-12 sm:mt-20 flex flex-col sm:flex-row items-center justify-between px-2 sm:px-10 gap-10 sm:gap-0">
+            <div className="mt-12 sm:mt-20 flex flex-col sm:flex-row items-center justify-between px-2 sm:px-10 gap-10 sm:gap-0">
                 <div className="text-center flex flex-col items-center">
                   <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden whitespace-nowrap text-ellipsis">{name}</div>
                   <p className="font-bold">दान दाता का हस्ताक्षर</p>
@@ -176,12 +175,9 @@ export default function DonationSuccess() {
       {/* ========================================== */}
       {/* 2. HIDDEN PDF TEMPLATE (Strict Width Enforced) */}
       {/* ========================================== */}
-      <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none z-[-1]">
-        <div 
-          ref={receiptRef} 
-          style={{ width: "800px", minWidth: "800px", maxWidth: "800px", padding: "40px", backgroundColor: "#ffffff" }}
-          className="font-serif border-4 border-double border-green-900 text-gray-900 text-left"
-        >
+        <div className="mt-8 bg-gray-100 p-4 sm:p-8 rounded-xl border border-gray-200 flex justify-center">
+          <div className="w-full max-w-3xl bg-white p-5 sm:p-10 font-serif border-2 sm:border-4 border-double border-green-900 text-gray-900 shadow-sm text-left">
+            
             {/* Header */}
             <div className="text-center border-b-2 border-green-900 pb-4 mb-4 sm:mb-6">
               <p className="text-xs sm:text-sm font-bold">बिहार सरकार से पंजीकृत 90/2020 | 80G: AAZTS4557P25PT02</p>
@@ -239,21 +235,21 @@ export default function DonationSuccess() {
               <p className="text-xs sm:text-sm text-gray-700 mt-4 font-medium">
                 * दान की राशी वापस नहीं दिया जायेगा, किन्तु उसके एवज में बाल विवाह, दहेज़ प्रथा, भ्रूण हत्या पर जागरूकता अभियान चलाया जाता है।
               </p>
-              <div className="mt-10 flex justify-between px-10">
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden">{name}</div>
-              <p className="font-bold">दान दाता का हस्ताक्षर</p>
-              <p className="text-sm">(Donor Signature)</p>
-            </div>
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mb-2">Shashi Jan Kalyan Trust</div>
-              <p className="font-bold">स्टाप का हस्ताक्षर</p>
-              <p className="text-sm">(Authorized Signatory)</p>
+            <div className="mt-12 sm:mt-20 flex flex-col sm:flex-row items-center justify-between px-2 sm:px-10 gap-10 sm:gap-0">
+                <div className="text-center flex flex-col items-center">
+                  <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden whitespace-nowrap text-ellipsis">{name}</div>
+                  <p className="font-bold">दान दाता का हस्ताक्षर</p>
+                  <p className="text-sm">(Donor Signature)</p>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="border-b border-gray-800 w-48 mb-2">Shashi Jan Kalyan Trust</div>
+                  <p className="font-bold">स्टाप का हस्ताक्षर</p>
+                  <p className="text-sm">(Authorized Signatory)</p>
+                </div>
+              </div>
             </div>
           </div>
-            </div>
         </div>
-      </div>
     </main>
   );
 }
