@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Save, Send, Loader2 } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
 
 export default function WorkReportForm({ profile, onBack, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -60,36 +63,62 @@ const handleFileChange = (e) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     const volunteerId = sessionStorage.getItem("volunteerId");
 
     try {
-      const submitData = new FormData();
-      
-      submitData.append(
-        "report", 
-        new Blob([JSON.stringify(formData)], { type: "application/json" })
-      );
+      let publicEvidenceUrl = null;
 
+      // 1. If there is a file, upload it to Supabase Storage first
       if (attachment) {
-        submitData.append("file", attachment);
+        // Generate a unique file name to prevent overwriting
+        const fileExt = attachment.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data, error } = await supabase.storage
+          .from("evidence-files")
+          .upload(`reports/${fileName}`, attachment);
+
+        if (error) {
+          console.error("Supabase upload error:", error);
+          alert("Failed to upload evidence file. Please try again.");
+          setIsSubmitting(false);
+          return; // Stop submission if image upload fails
+        }
+
+        // Retrieve the permanent public URL
+        const { data: publicUrlData } = supabase.storage
+          .from("evidence-files")
+          .getPublicUrl(`reports/${fileName}`);
+          
+        publicEvidenceUrl = publicUrlData.publicUrl;
       }
 
-      // const response = await fetch(`http://localhost:8080/api/reports/${volunteerId}`, {
+      // 2. Prepare the final JSON data for your Spring Boot backend
+      const finalReportData = {
+        ...formData,
+        evidenceUrl: publicEvidenceUrl // Add the Supabase URL to your form data
+      };
+
+      // 3. Send standard JSON to your backend instead of FormData
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/${volunteerId}`, {
         method: "POST",
-        body: submitData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(finalReportData),
       });
 
       if (response.ok) {
         onSuccess(); 
       } else {
-        alert("Failed to submit report. Please try again.");
+        alert("Failed to submit report details. Please try again.");
       }
     } catch (error) {
       console.error("Submission error:", error);
+      alert("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }

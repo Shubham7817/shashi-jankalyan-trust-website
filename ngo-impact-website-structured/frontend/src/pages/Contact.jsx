@@ -42,7 +42,7 @@ export default function Contact() {
                     Email
                   </p>
                   <p className="mt-1 text-base font-medium text-gray-900">
-                    info@shashijankalyantrust.org
+                    shashijankalyantrast012345@gmail.com
                   </p>
                 </div>
               </div>

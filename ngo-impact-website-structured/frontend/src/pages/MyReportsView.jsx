@@ -13,8 +13,8 @@ export default function MyReportsView({ onBack }) {
     const fetchAllReports = async () => {
       const volunteerId = sessionStorage.getItem("volunteerId");
       try {
-        // const response = await fetch(`http://localhost:8080/api/reports/user/${volunteerId}`);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
+        const response = await fetch(`http://localhost:8080/api/reports/user/${volunteerId}`);
+        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
         if (response.ok) {
           const data = await response.json();
           setReports(data);
@@ -132,11 +132,11 @@ export default function MyReportsView({ onBack }) {
                       {report.totalContributionAmount ? `₹${report.totalContributionAmount}` : "-"}
                     </td>
                     {/* NEW EVIDENCE CELL */}
+                          {/* NEW EVIDENCE CELL */}
                     <td className="px-4 py-3">
-                      {report.evidenceFile ? (
+                      {report.evidenceUrl ? (
                         <a 
-                          // href={`http://localhost:8080/uploads/evidence/${report.evidenceFile}`}
-                          href={`${import.meta.env.VITE_API_URL}/uploads/evidence/${report.evidenceFile}`}
+                          href={report.evidenceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"

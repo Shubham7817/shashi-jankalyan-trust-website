@@ -69,7 +69,7 @@ export default function Footer() {
                 href="mailto:info@shashijankalyantrust.org"
                 className="break-all font-bold text-sm text-white/90 transition-colors hover:text-green-300"
               >
-                info@shashijankalyantrust.org
+                shashijankalyantrast012345@gmail.com
               </a>
             </div>
 

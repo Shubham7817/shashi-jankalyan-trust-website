@@ -86,11 +86,10 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardData);
     }
 
-    @PostMapping(value = "/reports/{userId}", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/reports/{userId}")
     public ResponseEntity<?> submitWorkReport(
             @PathVariable Long userId,
-            @RequestPart("report") DailyWorkReport report,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
+            @RequestBody DailyWorkReport report) { // Changed from @RequestPart to @RequestBody
 
         Optional<UserCredential> user = userRepo.findById(userId);
 
@@ -101,41 +100,12 @@ public class DashboardController {
         // Link the report to the specific user
         report.setUser(user.get());
 
-        // Ensure status is set
-//        if (report.getApprovalStatus() == null) {
-//            report.setApprovalStatus("Under Review");
-//        }
-
-        // Handle File Upload if a file was attached
-        if (file != null && !file.isEmpty()) {
-            try {
-                String uploadDir = "uploads/evidence/";
-                Path uploadPath = Paths.get(uploadDir);
-
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-
-                // Generate a unique file name
-                String originalFileName = file.getOriginalFilename();
-                String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFileName;
-                Path filePath = uploadPath.resolve(uniqueFileName);
-
-                // Save file to local folder
-                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                // Save the generated file name into the database entity
-                report.setEvidenceFile(uniqueFileName);
-
-            } catch (Exception e) {
-                return ResponseEntity.status(500).body("Could not upload the file: " + e.getMessage());
-            }
-        }
+        // Note: The entire local file saving block (Files.copy, etc.) is deleted.
+        // The 'report' object automatically binds the 'evidenceUrl' string sent from React.
 
         DailyWorkReport savedReport = reportRepo.save(report);
         return ResponseEntity.ok(savedReport);
     }
-
 
     @GetMapping("/reports/user/{userId}")
     public ResponseEntity<?> getAllUserReports(@PathVariable Long userId) {

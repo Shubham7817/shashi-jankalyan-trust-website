@@ -47,7 +47,7 @@ public class DailyWorkReport {
     // --- NEW FIELDS ADDED HERE ---
     private Integer influencedContributors;
     private Double totalContributionAmount;
-    private String evidenceFile;
+    private String evidenceUrl;
 
 //    private String approvalStatus = "Under Review";
 }

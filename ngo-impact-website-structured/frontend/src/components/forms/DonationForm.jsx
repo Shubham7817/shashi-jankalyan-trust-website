@@ -23,8 +23,8 @@ export default function DonationForm() {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/volunteers`);
-        // const response = await fetch("http://localhost:8080/api/payment/volunteers");
+        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/volunteers`);
+        const response = await fetch("http://localhost:8080/api/payment/volunteers");
         if (response.ok) {
           const data = await response.json();
           setVolunteers(data);
@@ -68,6 +68,7 @@ export default function DonationForm() {
         name: "Shashi Jan Kalyan Trust",
         order_id: order.orderId,
         prefill: { name: formData.name, email: formData.email, contact: formData.phone },
+
         handler: async (res) => {
           try {
             setLoading(true);
@@ -100,6 +101,7 @@ export default function DonationForm() {
                   amount: finalAmount,
                   gatewayTransactionId: res.razorpay_payment_id,
                   name: formData.name,
+                  email: formData.email,
                   phone: formData.phone,
                   // Passing default values for fields not in your current form
                   city: formData.city, 

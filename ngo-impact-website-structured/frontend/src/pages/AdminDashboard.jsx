@@ -18,8 +18,8 @@ export default function AdminDashboard() {
 
     const fetchAllReports = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
-        // const response = await fetch(`http://localhost:8080/api/admin/reports`);
+        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
+        const response = await fetch(`http://localhost:8080/api/admin/reports`);
         if (response.ok) {
           const data = await response.json();
           setAllReports(data);
@@ -106,19 +106,19 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 font-medium text-green-700">
                       {report.totalContributionAmount ? `₹${report.totalContributionAmount}` : "-"}
                     </td>
-                    <td className="px-6 py-4">
-                      {report.evidenceFile ? (
+                  {/* NEW EVIDENCE CELL */}
+                    <td className="px-4 py-3">
+                      {report.evidenceUrl ? (
                         <a 
-                          // href={`http://localhost:8080/uploads/evidence/${report.evidenceFile}`}
-                          href={`${import.meta.env.VITE_API_URL}/uploads/evidence/${report.evidenceFile}`}
+                          href={report.evidenceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"
+                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"
                         >
                           View File
                         </a>
                       ) : (
-                        <span className="text-xs text-gray-400 font-medium px-2">None</span>
+                        <span className="text-xs text-gray-400 font-medium">None</span>
                       )}
                     </td>
                   </tr>
