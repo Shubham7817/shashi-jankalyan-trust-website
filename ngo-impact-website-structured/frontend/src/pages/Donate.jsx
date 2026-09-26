@@ -60,7 +60,7 @@ export default function Donate() {
           <div className="w-full lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-24">
             
             {/* 1. SECURE PAYMENT CARD */}
-            <div className="w-full rounded-2xl bg-gradient-to-br from-green-900 to-green-800 p-5 sm:p-6 text-white shadow-md">
+            <div className="w-full mt-2 rounded-2xl bg-gradient-to-br from-green-900 to-green-800 p-5 sm:p-6 text-white shadow-md">
               <div className="flex items-center gap-3 mb-3">
                 {/* Shield Icon */}
                 <svg className="w-6 h-6 text-green-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

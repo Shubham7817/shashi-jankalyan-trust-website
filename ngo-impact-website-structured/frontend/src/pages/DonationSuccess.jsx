@@ -169,78 +169,64 @@ export default function DonationSuccess() {
           style={{ width: "800px", minWidth: "800px", maxWidth: "800px", padding: "40px", backgroundColor: "#ffffff" }}
           className="font-serif border-4 border-double border-green-900 text-gray-900 text-left"
         >
-          {/* Header */}
-          <div className="text-center border-b-2 border-green-900 pb-4 mb-6">
-            <p className="text-sm font-bold">बिहार सरकार से पंजीकृत 90/2020 | 80G: AAZTS4557P25PT02 | UniqueId: BR/2020/0272012</p>
-            <h1 className="text-4xl font-extrabold text-[#0d4a30] mt-2 mb-1">शशि जन कल्याण ट्रस्ट (NGO)</h1>
-            <p className="text-lg font-semibold">दिनकर नगर, बरबीघा, शेखपुरा, बिहार 811101</p>
-            <p className="text-sm mt-1">Email: info@shashijankalyantrust.org | Helpline: 6203766882</p>
-          </div>
-
-          <div className="text-xl font-bold text-center mb-8 underline underline-offset-4">
-            दान का रसीद (Donation Receipt)
-          </div>
-
-          <div className="flex justify-between mb-6 text-lg">
-            <p><strong>Transaction ID:</strong> {gatewayTransactionId}</p>
-            <p><strong>Date (दिनांक):</strong> {date}</p>
-          </div>
-
-          <div className="space-y-6 text-lg leading-loose">
-            <div className="flex items-end border-b border-gray-400 pb-1">
-              <span className="font-semibold w-64 shrink-0">दान देने वालो का नाम (Name):</span>
-              <span className="flex-1 px-4 italic">{name}</span>
+            {/* Header */}
+            <div className="text-center border-b-2 border-green-900 pb-4 mb-4 sm:mb-6">
+              <p className="text-xs sm:text-sm font-bold">बिहार सरकार से पंजीकृत 90/2020 | 80G: AAZTS4557P25PT02</p>
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0d4a30] mt-2 mb-1">शशि जन कल्याण ट्रस्ट (NGO)</h1>
+              <p className="text-sm sm:text-lg font-semibold">दिनकर नगर, बरबीघा, शेखपुरा, बिहार 811101</p>
+              <p className="text-xs sm:text-sm mt-1 break-words">Email: shashijankalyantrast012345@gmail.com | Helpline: 6203766882</p>
             </div>
 
-            <div className="flex items-end border-b border-gray-400 pb-1">
-              <span className="font-semibold w-64 shrink-0">ईमेल (Email):</span>
-              <span className="flex-1 px-4 italic">{email}</span>
+            <div className="text-lg sm:text-xl font-bold text-center mb-6 underline underline-offset-4">
+              दान का रसीद (Donation Receipt)
             </div>
-            
-            <div className="flex gap-4">
-              <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-32 shrink-0">शहर (City):</span>
-                <span className="flex-1 px-2 italic">{city}</span>
+
+            <div className="flex flex-col sm:flex-row justify-between mb-6 text-sm sm:text-lg gap-2">
+              <p><strong>Transaction ID:</strong> <span className="break-all">{gatewayTransactionId}</span></p>
+              <p><strong>Date (दिनांक):</strong> {date}</p>
+            </div>
+
+            <div className="space-y-4 sm:space-y-6 text-sm sm:text-lg leading-relaxed">
+              <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1">
+                <span className="font-semibold sm:w-64">दान देने वालो का नाम (Name):</span>
+                <span className="flex-1 sm:px-4 italic">{name}</span>
               </div>
-              <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-32 shrink-0">राज्य (State):</span>
-                <span className="flex-1 px-2 italic">{state}</span>
+              <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1">
+                <span className="font-semibold sm:w-64">ईमेल (Email):</span>
+                <span className="flex-1 sm:px-4 italic break-all">{email}</span>
               </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-40 shrink-0">मो न (Mobile):</span>
-                <span className="flex-1 px-2 italic">{phone}</span>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1 flex-1">
+                  <span className="font-semibold sm:w-32">शहर (City):</span>
+                  <span className="flex-1 sm:px-2 italic">{city}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1 flex-1">
+                  <span className="font-semibold sm:w-32">राज्य (State):</span>
+                  <span className="flex-1 sm:px-2 italic">{state}</span>
+                </div>
               </div>
-              <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-48 shrink-0">प्रेरित (Referred By):</span>
-                <span className="flex-1 px-2 italic">{referredBy}</span>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1 flex-1">
+                  <span className="font-semibold sm:w-40">मो न (Mobile):</span>
+                  <span className="flex-1 sm:px-2 italic">{phone}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1 flex-1">
+                  <span className="font-semibold sm:w-48">प्रेरित (Referred By):</span>
+                  <span className="flex-1 sm:px-2 italic">{referredBy}</span>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-end border-b border-gray-400 pb-1">
-              <span className="font-semibold w-48 shrink-0">दान की राशी (Amount):</span>
-              <span className="flex-1 px-4 italic font-bold">Rs. {Number(amount).toLocaleString()}/-</span>
-            </div>
+              <div className="flex flex-col sm:flex-row sm:items-end border-b border-gray-400 pb-1">
+                <span className="font-semibold sm:w-48">दान की राशी (Amount):</span>
+                <span className="flex-1 sm:px-4 italic font-bold">Rs. {Number(amount).toLocaleString()}/-</span>
+              </div>
 
-            <p className="text-sm text-gray-700 mt-4 font-medium">
-              * दान की राशी वापस नहीं दिया जायेगा, किन्तु उसके एवज में बाल विवाह, दहेज़ प्रथा, भ्रूण हत्या पर जागरूकता अभियान चलाया जाता है।
-            </p>
-          </div>
-
-          <div className="mt-20 flex justify-between px-10">
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden">{name}</div>
-              <p className="font-bold">दान दाता का हस्ताक्षर</p>
-              <p className="text-sm">(Donor Signature)</p>
+              <p className="text-xs sm:text-sm text-gray-700 mt-4 font-medium">
+                * दान की राशी वापस नहीं दिया जायेगा, किन्तु उसके एवज में बाल विवाह, दहेज़ प्रथा, भ्रूण हत्या पर जागरूकता अभियान चलाया जाता है।
+              </p>
             </div>
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mb-2">Shashi Jan Kalyan Trust</div>
-              <p className="font-bold">स्टाप का हस्ताक्षर</p>
-              <p className="text-sm">(Authorized Signatory)</p>
-            </div>
-          </div>
         </div>
       </div>
     </main>
