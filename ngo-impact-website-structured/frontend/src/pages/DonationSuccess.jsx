@@ -35,9 +35,9 @@ export default function DonationSuccess() {
     const element = receiptRef.current;
     
     try {
-      // Pass strict dimensions to html2canvas so it ignores mobile screen constraints
+      // Pass strict dimensions to html2canvas to guarantee desktop formatting
       const canvas = await html2canvas(element, { 
-        scale: 2, 
+        scale: 3, // Increased scale for crisper text resolution
         useCORS: true,
         logging: false,
         width: 800,
@@ -46,12 +46,15 @@ export default function DonationSuccess() {
       
       const imgData = canvas.toDataURL("image/png");
       
+      // Create PDF and add margins so it looks like a professional document
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const margin = 15; // 15mm margin on all sides
+      const printWidth = pdfWidth - (margin * 2);
+      const printHeight = (canvas.height * printWidth) / canvas.width;
       
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Receipt_${gatewayTransactionId}.pdf`);
+      pdf.addImage(imgData, "PNG", margin, margin, printWidth, printHeight);
+      pdf.save(`Receipt_${name}${date}${gatewayTransactionId}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to download receipt. Please try again.");
@@ -158,12 +161,13 @@ export default function DonationSuccess() {
       </div>
 
       {/* ========================================== */}
-      {/* 2. HIDDEN PDF TEMPLATE (Strict 800px Width) */}
+      {/* 2. HIDDEN PDF TEMPLATE (Strict Width Enforced) */}
       {/* ========================================== */}
-      <div className="absolute left-[-9999px] top-0">
+      <div className="fixed top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none z-[-1]">
         <div 
           ref={receiptRef} 
-          className="w-[800px] min-w-[800px] h-auto bg-white p-10 font-serif border-4 border-double border-green-900 text-gray-900 text-left"
+          style={{ width: "800px", minWidth: "800px", maxWidth: "800px", padding: "40px", backgroundColor: "#ffffff" }}
+          className="font-serif border-4 border-double border-green-900 text-gray-900 text-left"
         >
           {/* Header */}
           <div className="text-center border-b-2 border-green-900 pb-4 mb-6">
@@ -184,39 +188,39 @@ export default function DonationSuccess() {
 
           <div className="space-y-6 text-lg leading-loose">
             <div className="flex items-end border-b border-gray-400 pb-1">
-              <span className="font-semibold w-64">दान देने वालो का नाम (Name):</span>
+              <span className="font-semibold w-64 shrink-0">दान देने वालो का नाम (Name):</span>
               <span className="flex-1 px-4 italic">{name}</span>
             </div>
 
             <div className="flex items-end border-b border-gray-400 pb-1">
-              <span className="font-semibold w-64">ईमेल (Email):</span>
+              <span className="font-semibold w-64 shrink-0">ईमेल (Email):</span>
               <span className="flex-1 px-4 italic">{email}</span>
             </div>
             
             <div className="flex gap-4">
               <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-32">शहर (City):</span>
+                <span className="font-semibold w-32 shrink-0">शहर (City):</span>
                 <span className="flex-1 px-2 italic">{city}</span>
               </div>
               <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-32">राज्य (State):</span>
+                <span className="font-semibold w-32 shrink-0">राज्य (State):</span>
                 <span className="flex-1 px-2 italic">{state}</span>
               </div>
             </div>
 
             <div className="flex gap-4">
               <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-40">मो न (Mobile):</span>
+                <span className="font-semibold w-40 shrink-0">मो न (Mobile):</span>
                 <span className="flex-1 px-2 italic">{phone}</span>
               </div>
               <div className="flex items-end border-b border-gray-400 pb-1 flex-1">
-                <span className="font-semibold w-48">प्रेरित (Referred By):</span>
+                <span className="font-semibold w-48 shrink-0">प्रेरित (Referred By):</span>
                 <span className="flex-1 px-2 italic">{referredBy}</span>
               </div>
             </div>
 
             <div className="flex items-end border-b border-gray-400 pb-1">
-              <span className="font-semibold w-48">दान की राशी (Amount):</span>
+              <span className="font-semibold w-48 shrink-0">दान की राशी (Amount):</span>
               <span className="flex-1 px-4 italic font-bold">Rs. {Number(amount).toLocaleString()}/-</span>
             </div>
 
