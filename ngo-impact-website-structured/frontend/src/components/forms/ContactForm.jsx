@@ -27,8 +27,8 @@ export default function ContactForm() {
 
     try {
       setIsLoading(true);
-      // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact/submit`, {
-      const response = await fetch("http://localhost:8080/api/contact/submit", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact/submit`, {
+      // const response = await fetch("http://localhost:8080/api/contact/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(d),

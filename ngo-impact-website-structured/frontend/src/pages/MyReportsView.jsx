@@ -13,8 +13,8 @@ export default function MyReportsView({ onBack }) {
     const fetchAllReports = async () => {
       const volunteerId = sessionStorage.getItem("volunteerId");
       try {
-        const response = await fetch(`http://localhost:8080/api/reports/user/${volunteerId}`);
-        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
+        // const response = await fetch(`http://localhost:8080/api/reports/user/${volunteerId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
         if (response.ok) {
           const data = await response.json();
           setReports(data);

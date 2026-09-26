@@ -18,8 +18,8 @@ export default function AdminDashboard() {
 
     const fetchAllReports = async () => {
       try {
-        // const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
-        const response = await fetch(`http://localhost:8080/api/admin/reports`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/reports`);
+        // const response = await fetch(`http://localhost:8080/api/admin/reports`);
         if (response.ok) {
           const data = await response.json();
           setAllReports(data);
