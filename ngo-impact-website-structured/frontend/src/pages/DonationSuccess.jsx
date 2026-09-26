@@ -54,7 +54,7 @@ export default function DonationSuccess() {
       const printHeight = (canvas.height * printWidth) / canvas.width;
       
       pdf.addImage(imgData, "PNG", margin, margin, printWidth, printHeight);
-      pdf.save(`Receipt_${name}${date}${gatewayTransactionId}.pdf`);
+      pdf.save(`Receipt_${name}_${date}_${gatewayTransactionId}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to download receipt. Please try again.");
@@ -136,18 +136,19 @@ export default function DonationSuccess() {
               <p className="text-xs sm:text-sm text-gray-700 mt-4 font-medium">
                 * दान की राशी वापस नहीं दिया जायेगा, किन्तु उसके एवज में बाल विवाह, दहेज़ प्रथा, भ्रूण हत्या पर जागरूकता अभियान चलाया जाता है।
               </p>
-              <div className="mt-20 flex justify-between px-10">
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden">{name}</div>
-              <p className="font-bold">दान दाता का हस्ताक्षर</p>
-              <p className="text-sm">(Donor Signature)</p>
-            </div>
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mb-2">Shashi Jan Kalyan Trust</div>
-              <p className="font-bold">स्टाप का हस्ताक्षर</p>
-              <p className="text-sm">(Authorized Signatory)</p>
-            </div>
-          </div>
+              {/* RESPONSIVE SIGNATURE BLOCK */}
+              <div className="mt-12 sm:mt-20 flex flex-col sm:flex-row items-center justify-between px-2 sm:px-10 gap-10 sm:gap-0">
+                <div className="text-center flex flex-col items-center">
+                  <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden whitespace-nowrap text-ellipsis">{name}</div>
+                  <p className="font-bold">दान दाता का हस्ताक्षर</p>
+                  <p className="text-sm">(Donor Signature)</p>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="border-b border-gray-800 w-48 mb-2">Shashi Jan Kalyan Trust</div>
+                  <p className="font-bold">स्टाप का हस्ताक्षर</p>
+                  <p className="text-sm">(Authorized Signatory)</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -238,7 +239,7 @@ export default function DonationSuccess() {
               <p className="text-xs sm:text-sm text-gray-700 mt-4 font-medium">
                 * दान की राशी वापस नहीं दिया जायेगा, किन्तु उसके एवज में बाल विवाह, दहेज़ प्रथा, भ्रूण हत्या पर जागरूकता अभियान चलाया जाता है।
               </p>
-              <div className="mt-20 flex justify-between px-10">
+              <div className="mt-10 flex justify-between px-10">
             <div className="text-center">
               <div className="border-b border-gray-800 w-48 mb-2 text-center overflow-hidden">{name}</div>
               <p className="font-bold">दान दाता का हस्ताक्षर</p>
