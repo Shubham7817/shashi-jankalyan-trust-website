@@ -2,6 +2,8 @@ import { Outlet } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import useScrollToTop from "../hooks/useScrollToTop";
+import Partners from "../pages/Partners";
+
 export default function MainLayout() {
   useScrollToTop();
   return (
@@ -10,6 +12,7 @@ export default function MainLayout() {
       <main>
         <Outlet />
       </main>
+      <Partners/>
       <Footer />
     </>
   );

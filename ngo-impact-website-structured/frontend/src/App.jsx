@@ -27,6 +27,7 @@ import RefundPolicy from "./components/legal/RefundPolicy";
 import TermsConditions from "./components/legal/TermsConditions";
 import SubscriptionTerms from "./components/legal/SubscriptionTerms";
 import ReferralTerms from "./components/legal/ReferralTerms";
+import Partners from "./pages/Partners";
 
 export default function App() {
   return (
@@ -62,6 +63,8 @@ export default function App() {
         <Route path="/subscription-terms" element={<SubscriptionTerms />} />
         <Route path="/referral-terms" element={<ReferralTerms />} />
         
+
+        <Route path="/partners" element={<Partners />} />
       </Route>
     </Routes>
   );
