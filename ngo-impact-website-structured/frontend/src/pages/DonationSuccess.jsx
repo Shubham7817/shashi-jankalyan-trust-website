@@ -315,7 +315,7 @@ export default function DonationSuccess() {
                 <td style={{ width: "50%", textAlign: "center", verticalAlign: "bottom" }}>
                   <div style={{ width: "200px", margin: "0 auto", borderBottom: "1px solid #1f2937", paddingBottom: "8px", marginBottom: "8px", display: "flex", justifyContent: "center" }}>
                     <img 
-                      src="/Screenshot_2026-09-28_201705-removebg-preview.png" 
+                      src={img2}
                       alt="Authorized Signature" 
                       style={{ height: "64px", objectFit: "contain" }} 
                     />
