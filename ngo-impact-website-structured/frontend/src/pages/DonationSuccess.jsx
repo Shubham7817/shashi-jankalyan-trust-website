@@ -4,6 +4,7 @@ import { CheckCircle, Download, Loader2 } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
 import img from "../assets/image2/logo.jpeg";
+import img2 from "../assets/image2/signature.png";
 
 export default function DonationSuccess() {
   const location = useLocation();
@@ -157,7 +158,13 @@ export default function DonationSuccess() {
                   <p className="text-sm">(Donor Signature)</p>
                 </div>
                 <div className="text-center flex flex-col items-center">
-                  <div className="border-b border-gray-800 w-48 mb-2">Shashi Jan Kalyan Trust</div>
+                  <div className="border-b border-gray-800 w-48 mb-2 flex justify-center">
+                    <img 
+                      src={img2} 
+                      alt="Authorized Signature" 
+                      className="h-16 object-contain" 
+                    />
+                  </div>
                   <p className="font-bold">स्टाप का हस्ताक्षर</p>
                   <p className="text-sm">(Authorized Signatory)</p>
                 </div>
@@ -306,8 +313,12 @@ export default function DonationSuccess() {
                   <p style={{ fontSize: "14px", margin: 0 }}>(Donor Signature)</p>
                 </td>
                 <td style={{ width: "50%", textAlign: "center", verticalAlign: "bottom" }}>
-                  <div style={{ width: "200px", margin: "0 auto", borderBottom: "1px solid #1f2937", paddingBottom: "8px", marginBottom: "8px" }}>
-                    Shashi Jan Kalyan Trust
+                  <div style={{ width: "200px", margin: "0 auto", borderBottom: "1px solid #1f2937", paddingBottom: "8px", marginBottom: "8px", display: "flex", justifyContent: "center" }}>
+                    <img 
+                      src="/Screenshot_2026-09-28_201705-removebg-preview.png" 
+                      alt="Authorized Signature" 
+                      style={{ height: "64px", objectFit: "contain" }} 
+                    />
                   </div>
                   <p style={{ fontWeight: "bold", margin: 0 }}>स्टाप का हस्ताक्षर</p>
                   <p style={{ fontSize: "14px", margin: 0 }}>(Authorized Signatory)</p>
