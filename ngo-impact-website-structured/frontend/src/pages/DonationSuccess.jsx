@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CheckCircle, Download, Loader2 } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
+import img from "../assets/image2/logo.jpeg";
 
 export default function DonationSuccess() {
   const location = useLocation();
@@ -80,9 +81,22 @@ export default function DonationSuccess() {
           <div className="w-full max-w-3xl bg-white p-5 sm:p-10 font-serif border-2 sm:border-4 border-double border-green-900 text-gray-900 shadow-sm text-left">
             
             {/* Header */}
-            <div className="text-center border-b-2 border-green-900 pb-4 mb-4 sm:mb-6">
+<div className="text-center border-b-2 border-green-900 pb-4 mb-4 sm:mb-6">
               <p className="text-xs sm:text-sm font-bold">बिहार सरकार से पंजीकृत 90/2020 | 80G: AAZTS4557P25PT02</p>
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0d4a30] mt-2 mb-1">शशि जन कल्याण ट्रस्ट (NGO)</h1>
+              
+              {/* FLEX CONTAINER FOR LOGO AND TITLE */}
+              <div className="flex items-center justify-center gap-3 sm:gap-4 mt-2 mb-2">
+                {/* Note: Update src="/logo.png" with the actual path to your logo in the public/assets folder */}
+                <img 
+                  src={img}
+                  alt="Trust Logo" 
+                  className="w-10 h-10 sm:w-14 sm:h-14 object-contain shrink-0" 
+                />
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0d4a30] leading-none">
+                  शशि जन कल्याण ट्रस्ट (NGO)
+                </h1>
+              </div>
+
               <p className="text-sm sm:text-lg font-semibold">दिनकर नगर, बरबीघा, शेखपुरा, बिहार 811101</p>
               <p className="text-xs sm:text-sm mt-1 break-words">Email: shashijankalyantrast012345@gmail.com | Helpline: 6203766882</p>
             </div>
@@ -182,9 +196,15 @@ export default function DonationSuccess() {
           className="font-serif border-4 border-double border-green-900 text-gray-900 text-left"
         >
           {/* Header */}
+{/* Header */}
           <div style={{ textAlign: "center", borderBottom: "2px solid #14532d", paddingBottom: "16px", marginBottom: "24px" }}>
             <p style={{ fontSize: "14px", fontWeight: "bold", margin: 0 }}>बिहार सरकार से पंजीकृत 90/2020 | 80G: AAZTS4557P25PT02</p>
-            <h1 style={{ fontSize: "36px", fontWeight: "800", color: "#0d4a30", margin: "8px 0" }}>शशि जन कल्याण ट्रस्ट (NGO)</h1>
+            
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", margin: "8px 0" }}>
+              <img src={img} alt="Trust Logo" style={{ width: "56px", height: "56px", objectFit: "contain" }} />
+              <h1 style={{ fontSize: "36px", fontWeight: "800", color: "#0d4a30", margin: 0 }}>शशि जन कल्याण ट्रस्ट (NGO)</h1>
+            </div>
+
             <p style={{ fontSize: "18px", fontWeight: "600", margin: 0 }}>दिनकर नगर, बरबीघा, शेखपुरा, बिहार 811101</p>
             <p style={{ fontSize: "14px", margin: "4px 0 0 0" }}>Email: shashijankalyantrast012345@gmail.com | Helpline: 6203766882</p>
           </div>
