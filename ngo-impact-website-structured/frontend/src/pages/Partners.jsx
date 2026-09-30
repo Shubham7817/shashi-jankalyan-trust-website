@@ -2,6 +2,7 @@ import React from "react";
 import bihar_gov from "../assets/image2/bihar_gov_agri.jpg";
 import sbi_logo from "../assets/image2/sbi_logo.png";
 import ic_logo from "../assets/image2/ic_logo.svg";
+import mayashankar from "../assets/image2/maya_shankar.jpeg";
 
 export default function Partners() {
   const partners = [
@@ -9,7 +10,7 @@ export default function Partners() {
       name: "Srishti Development Pvt. Ltd.",
       role: "CSR & Funding Partner",
       description: "Providing vital CSR funds to drive our grassroots initiatives. Special thanks to HR Mr. Maya Shankar.",
-      logo: ic_logo 
+      logo: mayashankar 
     },
     {
       name: "Govt. of Bihar (Agriculture)",
