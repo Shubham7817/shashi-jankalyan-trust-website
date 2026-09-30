@@ -13,6 +13,7 @@ import agriculture from "../assets/image/agriculture/soil-testing-lab.avif";
 import awareness from "../assets/image/awareness program/community-temple-01.avif"
 import kanyavivah from "../assets/image/kanya-vivah indoor/kanya-vivah-indoor.avif"
 import womenskill from "../assets/image/women-skill-empowerment/womenskill.avif"
+import shg from "../assets/image/shg/shg.jpg"
 export default function Home() {
   return (
     <>
@@ -76,6 +77,14 @@ export default function Home() {
           image: awareness,
           stat: "District-wide",
           statLabel: "outreach across Sheikhpura",
+        },
+        {
+        title: "Self Help Groups",
+        description:
+          "Supporting women through savings, financial awareness, livelihood activities, and collective decision-making.",
+        image: shg,
+        stat: "Women-led",
+        statLabel: "SHG groups across Sheikhpura",
         },
       ].map((program) => (
         <div

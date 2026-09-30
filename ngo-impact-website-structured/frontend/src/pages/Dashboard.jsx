@@ -147,11 +147,18 @@ export default function Dashboard() {
             {/* Welcome Banner */}
             <div className="relative overflow-hidden rounded-2xl bg-emerald-50 p-6 md:p-8 shadow-sm border border-emerald-100">
               <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                <img 
-                  src={`https://ui-avatars.com/api/?name=${profile.fullName}&background=0D8ABC&color=fff&size=128`}
-                  alt="Avatar" 
-                  className="h-24 w-24 rounded-full border-4 border-white shadow-md"
-                />
+        <img 
+          src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/avatars/${profile.memberId}.jpeg`}
+          
+          // If the image doesn't exist in Supabase, fallback to the generated initials
+          onError={(e) => {
+            e.target.onerror = null; // Prevent infinite loop
+            e.target.src = `https://ui-avatars.com/api/?name=${profile.fullName}&background=0D8ABC&color=fff&size=128`;
+          }}
+          
+          alt={`${profile.fullName}'s Avatar`} 
+          className="h-24 w-24 rounded-full border-4 border-white shadow-md object-cover"
+        />
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back, {profile.fullName}!</h1>
                   <p className="text-gray-600 mb-4 text-sm">Thank you for being a changemaker. Your efforts make a real difference.</p>
@@ -230,18 +237,46 @@ export default function Dashboard() {
                 
                 <div className="space-y-4">
                   <div className="flex items-start justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                    <div className="space-y-3 w-full">
+                    <div className="space-y-3 w-full">  
                       <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-gray-900">Rural Education Program</h3>
+                        {/* Optionally make the program name dynamic too, or leave it static */}
+                        <h3 className="font-bold text-gray-900">
+                          {recentActivity.length > 0 && recentActivity[0].programName 
+                            ? recentActivity[0].programName 
+                            : "Rural Education Program"}
+                        </h3>
                         <span className="rounded bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">Active</span>
                       </div>
+                      
                       <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div><span className="text-gray-500 block mb-1">Funding Source</span><span className="font-medium">CSR</span></div>
-                        <div><span className="text-gray-500 block mb-1">Project ID</span><span className="font-medium">CSR-2026-001</span></div>
-                        <div className="col-span-2"><span className="text-gray-500 mr-3">Your Role:</span><span className="font-medium">Field Volunteer</span></div>
+                        {/* Funding Source Logic */}
+                        {/* <div>
+                          <span className="text-gray-500 block mb-1">Funding Source</span>
+                          <span className="font-medium">
+                            {recentActivity.length > 0 ? recentActivity[0].activityType : "N/A"}
+                          </span>
+                        </div> */}
+                        
+                        {/* Activity Type Logic (Replaces Project ID) */}
+                        <div>
+                          <span className="text-gray-500 block mb-1">Latest Activity</span>
+                          <span className="font-medium text-green-700">
+                            {recentActivity.length > 0 
+                              ? (recentActivity[0].type || recentActivity[0].activityType) 
+                              : "None"}
+                          </span>
+                        </div>
+                        
+                        {/* Dynamic Role from Backend */}
+                        <div className="col-span-2">
+                          <span className="text-gray-500 mr-3">Your Role:</span>
+                          <span className="font-medium">
+                            {/* Assuming 'profile' is passed into this component just like in your avatar code */}
+                            {profile?.volunteerRole || "Field Volunteer"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-end">
-                      </div>
+
                     </div>
                   </div>
                 </div>

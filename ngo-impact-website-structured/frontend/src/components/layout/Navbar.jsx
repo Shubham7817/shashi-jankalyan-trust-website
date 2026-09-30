@@ -82,7 +82,7 @@ export default function Navbar() {
                 Shashi Jan Kalyan Trust
               </div>
               <div className="mt-0.5 text-sm font-bold tracking-widest text-green-900">
-                SHEIKHPURA · BIHAR
+                SHEIKHPURA · KISHANGANJ · BIHAR
               </div>
             </div>
           </Link>

@@ -104,6 +104,7 @@ const handleSubmit = async (e) => {
 
       // 3. Send standard JSON to your backend instead of FormData
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/${volunteerId}`, {
+      // const response = await fetch(`http://localhost:8080/api/reports/${volunteerId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -158,6 +159,7 @@ const handleSubmit = async (e) => {
                 <option value="Awareness">Awareness</option>
                 <option value="Livelihood">Livelihood</option>
                 <option value="Women Empowerment">Women Empowerment</option>
+                <option value="SHG">Self-Help Group(SHG)</option>
               </select>
             </div>
             <div>
