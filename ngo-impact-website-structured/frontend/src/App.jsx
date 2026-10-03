@@ -28,6 +28,7 @@ import TermsConditions from "./components/legal/TermsConditions";
 import SubscriptionTerms from "./components/legal/SubscriptionTerms";
 import ReferralTerms from "./components/legal/ReferralTerms";
 import Partners from "./pages/Partners";
+import SelfHelpGroups from "./pages/SelfHelpGroups";
 
 export default function App() {
   return (
@@ -52,6 +53,8 @@ export default function App() {
         <Route path="/our-work/livelihood" element={<Livelihood />} />
         <Route path="/our-work/awareness" element={<Awareness />} />
         <Route path="/our-work/environment" element={<Environment />} />
+        <Route path="/our-work/self-help-groups" element={<SelfHelpGroups />} />
+
         <Route path="/donation-success" element={<DonationSuccess />} />
         <Route path="/donation-failed" element={<DonationFailed />} />
         <Route path="*" element={<NotFound />} />

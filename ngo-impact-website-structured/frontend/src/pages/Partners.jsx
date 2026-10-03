@@ -3,6 +3,7 @@ import bihar_gov from "../assets/image2/bihar_gov_agri.jpg";
 import sbi_logo from "../assets/image2/sbi_logo.png";
 import ic_logo from "../assets/image2/ic_logo.svg";
 import mayashankar from "../assets/image2/maya_shankar.jpeg";
+import sbi_md from "../assets/image2/sbi-md.jpeg";
 
 export default function Partners() {
   const partners = [
@@ -22,7 +23,7 @@ export default function Partners() {
       name: "State Bank of India (SBI)",
       role: "SHG Linkage Partner",
       description: "Our financial partner for linking and empowering Women's Self Help Groups (SHGs).",
-      logo: sbi_logo 
+      logo: sbi_md 
     }
   ];
 

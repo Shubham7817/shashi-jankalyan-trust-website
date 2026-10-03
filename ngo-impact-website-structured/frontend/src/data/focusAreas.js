@@ -5,6 +5,7 @@ import womenskill from "../assets/image/women-skill-empowerment/img1.jpg"
 import education from "../assets/image/education/education.jpg"
 import healthcare from "../assets/image/healthcare/healthcare.jpg"
 import livelihood from "../assets/image/livelihood/livelihood.jpg"
+import shg from "../assets/image/shg/shg.jpg"
 
 import {
   GraduationCap,
@@ -70,5 +71,13 @@ export const focusAreas = [
     points: ["Trees", "Awareness", "Action"],
     image:agriculture,
     path: "/our-work/environment",
+  },
+    {
+    title: "SHG (Self Help Group)",
+    Icon: Users,
+    description: "Empowering local communities to lead grassroots environmental action.",
+    points: ["Community Nurseries", "Eco-Awareness", "Local Stewardship"],
+    image:shg,
+    path: "/our-work/self-help-groups",
   },
 ];
