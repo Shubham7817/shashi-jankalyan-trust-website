@@ -11,6 +11,7 @@ const links = [
   ["/gallery", "Gallery"],
   ["/get-involved", "Get Involved"],
   ["/contact", "Contact"],
+  ["/join-shg", "Join SHG"],
 ];
 
 export default function Navbar() {

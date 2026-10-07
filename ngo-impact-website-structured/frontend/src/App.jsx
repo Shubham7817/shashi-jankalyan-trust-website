@@ -29,6 +29,7 @@ import SubscriptionTerms from "./components/legal/SubscriptionTerms";
 import ReferralTerms from "./components/legal/ReferralTerms";
 import Partners from "./pages/Partners";
 import SelfHelpGroups from "./pages/SelfHelpGroups";
+import JoinShgForm from "./pages/JoinShgForm";
 
 export default function App() {
   return (
@@ -45,6 +46,9 @@ export default function App() {
         <Route path="/donate" element={<Donate />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/news" element={<News />} />
+        <Route path="/join-shg" element={<JoinShgForm />} />
+
+
         <Route path="/admin" element={<AdminDashboard />} /> 
         <Route path="/our-work/women-skills" element={<WomenSkill />} />
         <Route path="/our-work/education" element={<Education />} />
