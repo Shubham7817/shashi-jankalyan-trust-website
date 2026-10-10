@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/shg")
-@CrossOrigin(origins = "*") // Adjust origins as needed for production security
+@CrossOrigin(origins = "*")
 public class ShgMemberController {
 
     @Autowired
