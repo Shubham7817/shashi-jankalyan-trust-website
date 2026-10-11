@@ -15,6 +15,7 @@ public class ShgMember {
     // Personal Info
     private String name;
     private String mobileNumber;
+    private String email; // <-- NEW: Added Email
     private String address;
     private String aadhaarNumber;
     private String panNumber;
@@ -32,6 +33,7 @@ public class ShgMember {
     private String aadhaarPhotoUrl;
     private String panPhotoUrl;
     private String selfPhotoUrl;
+    private String passbookPhotoUrl; // <-- NEW: Added Passbook Photo URL
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

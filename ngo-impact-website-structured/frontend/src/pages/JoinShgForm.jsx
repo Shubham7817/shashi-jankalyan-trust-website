@@ -11,6 +11,7 @@ export default function JoinShgForm() {
   const [formData, setFormData] = useState({ 
     name: '', 
     mobileNumber: '',
+    email: '', // <-- NEW: Email field
     address: '', 
     aadhaarNumber: '',
     panNumber: '',
@@ -21,7 +22,8 @@ export default function JoinShgForm() {
     referredBy: ''
   });
   
-  const [files, setFiles] = useState({ aadhaar: null, pan: null, photo: null });
+  // <-- NEW: Added 'passbook' to files state
+  const [files, setFiles] = useState({ aadhaar: null, pan: null, photo: null, passbook: null });
   const [volunteers, setVolunteers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -30,7 +32,7 @@ export default function JoinShgForm() {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/payment/volunteers`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/volunteers`);
         if (response.ok) {
           const data = await response.json();
           setVolunteers(data);
@@ -86,16 +88,19 @@ export default function JoinShgForm() {
     setLoading(true);
     setMessage('');
 
-    if (!files.aadhaar || !files.pan || !files.photo) {
-      setMessage("Error: Please ensure all three images are selected and under 3 MB.");
+    // <-- UPDATED: Check all 4 files (including passbook)
+    if (!files.aadhaar || !files.pan || !files.photo || !files.passbook) {
+      setMessage("Error: Please ensure all four images (Aadhaar, PAN, Self Photo, and Passbook) are selected and under 3 MB.");
       setLoading(false);
       return;
     }
 
     try {
+      // 1. Upload all 4 images to Supabase
       const aadhaarPhotoUrl = await uploadFileToSupabase(files.aadhaar, 'aadhaar');
       const panPhotoUrl = await uploadFileToSupabase(files.pan, 'pan');
       const selfPhotoUrl = await uploadFileToSupabase(files.photo, 'photos');
+      const passbookPhotoUrl = await uploadFileToSupabase(files.passbook, 'passbooks'); // <-- NEW
 
       // Resolve the volunteer name before sending to backend
       let referredByName = "None";
@@ -104,16 +109,18 @@ export default function JoinShgForm() {
           (vol) => vol.id.toString() === formData.referredBy.toString()
         );
         if (selectedVolunteer) {
-          referredByName = selectedVolunteer.name;
+          referredByName = selectedVolunteer.fullName || selectedVolunteer.name;
         }
       }
 
+      // 2. Build payload with new fields
       const payload = {
         ...formData,
         referredBy: referredByName,
         aadhaarPhotoUrl,
         panPhotoUrl,
-        selfPhotoUrl
+        selfPhotoUrl,
+        passbookPhotoUrl // <-- NEW
       };
 
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/shg/join`, {
@@ -128,10 +135,10 @@ export default function JoinShgForm() {
       
       // Reset Form
       setFormData({ 
-        name: '', mobileNumber: '', address: '', aadhaarNumber: '', panNumber: '', 
+        name: '', mobileNumber: '', email: '', address: '', aadhaarNumber: '', panNumber: '', 
         bankAccountNumber: '', ifscCode: '', accountHolderName: '', bankName: '', referredBy: '' 
       });
-      setFiles({ aadhaar: null, pan: null, photo: null });
+      setFiles({ aadhaar: null, pan: null, photo: null, passbook: null });
       e.target.reset();
 
     } catch (error) {
@@ -157,7 +164,7 @@ export default function JoinShgForm() {
         {/* SECTION 1: Personal Details */}
         <div className="space-y-4">
           <h3 className="font-bold text-lg text-gray-800 border-b pb-2">Personal Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
               <input type="text" name="name" required value={formData.name} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
@@ -166,15 +173,22 @@ export default function JoinShgForm() {
               <label className="block text-sm font-semibold text-gray-700 mb-1">Mobile Number</label>
               <input type="tel" name="mobileNumber" required pattern="[0-9]{10}" value={formData.mobileNumber} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
             </div>
+            {/* NEW: Email Input */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+              <input type="email" name="email" required placeholder="example@gmail.com" value={formData.email} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
+            </div>
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Address</label>
             <textarea name="address" required rows="2" value={formData.address} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600"></textarea>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Aadhaar Number</label>
-              <input type="text" name="aadhaarNumber" required placeholder="[Aadhaar Redacted]" value={formData.aadhaarNumber} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
+              <input type="text" name="aadhaarNumber" required placeholder="Enter 12-digit Aadhaar" value={formData.aadhaarNumber} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">PAN Number</label>
@@ -216,30 +230,41 @@ export default function JoinShgForm() {
               <option value="">Select Volunteer</option>
               {volunteers.map((vol) => (
                 <option key={vol.id} value={vol.id}>
-                  {vol.name} ({vol.email} | {vol.phone})
+                  {vol.fullName || vol.name} ({vol.email} | {vol.mobileNumber || vol.phone})
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
+          {/* UPDATED: 2x2 Grid for the 4 Document Uploads */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4">
+            <div className="p-3 border rounded-xl bg-gray-50/50">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Aadhaar Photo <span className="text-xs text-red-500 font-normal">(Max 3MB)</span>
               </label>
               <input type="file" name="aadhaar" accept="image/*" required onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
+
+            <div className="p-3 border rounded-xl bg-gray-50/50">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 PAN Photo <span className="text-xs text-red-500 font-normal">(Max 3MB)</span>
               </label>
               <input type="file" name="pan" accept="image/*" required onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
+
+            <div className="p-3 border rounded-xl bg-gray-50/50">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Self Photo <span className="text-xs text-red-500 font-normal">(Max 3MB)</span>
               </label>
               <input type="file" name="photo" accept="image/*" required onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+            </div>
+
+            {/* NEW: Bank Passbook Photo Input */}
+            <div className="p-3 border rounded-xl bg-gray-50/50">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Bank Passbook Photo <span className="text-xs text-red-500 font-normal">(Max 3MB)</span>
+              </label>
+              <input type="file" name="passbook" accept="image/*" required onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
             </div>
           </div>
         </div>
