@@ -32,7 +32,7 @@ export default function JoinShgForm() {
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/volunteers`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/volunteers`);
         if (response.ok) {
           const data = await response.json();
           setVolunteers(data);
@@ -123,7 +123,7 @@ export default function JoinShgForm() {
         passbookPhotoUrl // <-- NEW
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/shg/join`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shg/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
