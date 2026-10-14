@@ -1,117 +1,99 @@
-import React, { useState, useEffect } from "react";
-import { ArrowLeft, Save, Send, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-                   import.meta.env.VITE_SUPABASE_URL,
-                   import.meta.env.VITE_SUPABASE_ANON_KEY
-                   );
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 export default function WorkReportForm({ profile, onBack, onSuccess }) {
   const [formData, setFormData] = useState({
     activityDate: new Date().toISOString().split("T")[0],
     activityType: "",
     programName: "",
-    objective: "",
     activityLocation: "",
-    startTime: "",
-    endTime: "",
-    totalHours: 0,
     totalBeneficiaries: "",
     outcome: "",
     projectName: "",
-    projectId: "",
-    // NEW FIELDS added for influence-driven contributions
-    influencedContributors: "",
-    totalContributionAmount: ""
+    
+    // NEW FUNDRAISING FIELDS
+    contributorName: "",
+    beneficiaryName: "",
+    parentName: "",
+    address: "",
+    mobileNumber: "",
+    aadhaarNumber: "",
+    age: "",
+    category: "",
+    amount: "",
+    dob: "",
+    recordDate: new Date().toISOString().split("T")[0]
   });
 
-  const [attachment, setAttachment] = useState(null);
+  const [files, setFiles] = useState({ evidence: null, beneficiaryPhoto: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileError, setFileError] = useState("");
-
-  // Auto-calculate Total Hours when times change
-  useEffect(() => {
-    if (formData.startTime && formData.endTime) {
-      const start = new Date(`1970-01-01T${formData.startTime}`);
-      const end = new Date(`1970-01-01T${formData.endTime}`);
-      let diff = (end - start) / (1000 * 60 * 60); // Difference in hours
-      if (diff < 0) diff += 24; // Handle overnight shifts
-      setFormData((prev) => ({ ...prev, totalHours: diff.toFixed(1) }));
-    }
-  }, [formData.startTime, formData.endTime]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleFileChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
+    const fieldName = e.target.name;
     
     if (file) {
       const maxSizeInBytes = 5 * 1024 * 1024; // 5MB limit
       
       if (file.size > maxSizeInBytes) {
-        setFileError("File size exceeds the 5MB limit. Please choose a smaller file.");
-        setAttachment(null);
-        e.target.value = null; // Instantly clears the invalid file from the input
+        setFileError(`File size for ${fieldName} exceeds the 5MB limit.`);
+        e.target.value = null; 
+        setFiles(prev => ({ ...prev, [fieldName]: null }));
       } else {
         setFileError("");
-        setAttachment(file);
+        setFiles(prev => ({ ...prev, [fieldName]: file }));
       }
-    } else {
-      // If the user clicks cancel in the file dialog
-      setFileError("");
-      setAttachment(null);
     }
   };
 
-const handleSubmit = async (e) => {
+  const uploadFileToSupabase = async (file, folder) => {
+    if (!file) return null;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    const { data, error } = await supabase.storage
+      .from("evidence-files") // Using your existing bucket
+      .upload(fileName, file);
+
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from("evidence-files")
+      .getPublicUrl(fileName);
+      
+    return publicUrl;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     const volunteerId = sessionStorage.getItem("volunteerId");
 
     try {
-      let publicEvidenceUrl = null;
+      // Upload files if they exist
+      const evidenceUrl = await uploadFileToSupabase(files.evidence, 'reports');
+      const beneficiaryPhotoUrl = await uploadFileToSupabase(files.beneficiaryPhoto, 'beneficiaries');
 
-      // 1. If there is a file, upload it to Supabase Storage first
-      if (attachment) {
-        // Generate a unique file name to prevent overwriting
-        const fileExt = attachment.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-        const { data, error } = await supabase.storage
-          .from("evidence-files")
-          .upload(`reports/${fileName}`, attachment);
-
-        if (error) {
-          console.error("Supabase upload error:", error);
-          alert("Failed to upload evidence file. Please try again.");
-          setIsSubmitting(false);
-          return; // Stop submission if image upload fails
-        }
-
-        // Retrieve the permanent public URL
-        const { data: publicUrlData } = supabase.storage
-          .from("evidence-files")
-          .getPublicUrl(`reports/${fileName}`);
-          
-        publicEvidenceUrl = publicUrlData.publicUrl;
-      }
-
-      // 2. Prepare the final JSON data for your Spring Boot backend
       const finalReportData = {
         ...formData,
-        evidenceUrl: publicEvidenceUrl // Add the Supabase URL to your form data
+        evidenceUrl,
+        beneficiaryPhotoUrl
       };
 
-      // 3. Send standard JSON to your backend instead of FormData
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/${volunteerId}`, {
-      // const response = await fetch(`http://localhost:8080/api/reports/${volunteerId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/reports/${volunteerId}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalReportData),
       });
 
@@ -122,7 +104,7 @@ const handleSubmit = async (e) => {
       }
     } catch (error) {
       console.error("Submission error:", error);
-      alert("An unexpected error occurred.");
+      alert("An unexpected error occurred during submission.");
     } finally {
       setIsSubmitting(false);
     }
@@ -190,32 +172,10 @@ const handleSubmit = async (e) => {
           </div>
         </section>
 
-        {/* 3. Work Performed */}
+        {/* 3. Impact & Outcome */}
         <section>
           <div className="mb-4 flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">3</span>
-            <h3 className="font-bold text-gray-900">Work Performed</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">Start Time *</label>
-              <input type="time" name="startTime" value={formData.startTime} onChange={handleChange} required className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">End Time *</label>
-              <input type="time" name="endTime" value={formData.endTime} onChange={handleChange} required className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">Total Hours</label>
-              <input type="text" readOnly value={`${formData.totalHours} hours`} className="w-full rounded-md border border-gray-200 bg-gray-100 p-2 text-sm text-gray-600 outline-none" />
-            </div>
-          </div>
-        </section>
-
-        {/* 4. Impact & Outcome */}
-        <section>
-          <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">4</span>
             <h3 className="font-bold text-gray-900">Impact & Outcome</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -225,7 +185,7 @@ const handleSubmit = async (e) => {
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-gray-700">Project / Funding</label>
-              <input type="text" name="projectName" value={formData.projectName} onChange={handleChange} required placeholder="Enter project name" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+              <input type="text" name="projectName" value={formData.projectName} onChange={handleChange} placeholder="Enter project name" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
             </div>
           </div>
           <div>
@@ -234,53 +194,86 @@ const handleSubmit = async (e) => {
           </div>
         </section>
 
-        {/* 5. NEW: Fundraising & Influence */}
+        {/* 4. Fundraising & Influence */}
         <section>
           <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">5</span>
-            <h3 className="font-bold text-gray-900">Fundraising & Influence (Optional)</h3>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">4</span>
+            <h3 className="font-bold text-gray-900">Fundraising & Influence</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 rounded-xl p-4 bg-gray-50/50">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">Influence-Driven Contributors</label>
-              <input 
-                type="number" 
-                name="influencedContributors" 
-                value={formData.influencedContributors} 
-                onChange={handleChange} 
-                min="0"
-                placeholder="Number of people" 
-                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" 
-              />
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Contributor Name</label>
+              <input type="text" name="contributorName" value={formData.contributorName} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">Total Contributions (₹)</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₹</span>
-                <input 
-                  type="number" 
-                  name="totalContributionAmount" 
-                  value={formData.totalContributionAmount} 
-                  onChange={handleChange} 
-                  min="0"
-                  placeholder="Amount collected" 
-                  className="w-full rounded-md border border-gray-300 py-2 pl-8 pr-3 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" 
-                />
-              </div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Beneficiary Name</label>
+              <input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Father/Mother Name</label>
+              <input type="text" name="parentName" value={formData.parentName} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Address</label>
+              <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Mobile Number</label>
+              <input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Aadhaar Number</label>
+              <input type="text" name="aadhaarNumber" placeholder="[Aadhaar Redacted]" value={formData.aadhaarNumber} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Age</label>
+              <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Category</label>
+              <select name="category" value={formData.category} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700">
+                <option value="">Select Category</option>
+                <option value="General">General</option>
+                <option value="OBC">OBC</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Amount (₹)</label>
+              <input type="number" name="amount" value={formData.amount} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Date of Birth</label>
+              <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Record Date</label>
+              <input type="date" name="recordDate" value={formData.recordDate} onChange={handleChange} className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:ring-1 focus:ring-green-700" />
+            </div>
+
+            <div className="md:col-span-3">
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Beneficiary Photo</label>
+              <input type="file" name="beneficiaryPhoto" accept="image/*" onChange={handleFileChange} className="w-full rounded-md border bg-white p-2 text-sm text-gray-600 focus:outline-none focus:ring-1 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-green-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-green-700 hover:file:bg-green-100" />
             </div>
           </div>
         </section>
 
-        {/* 6. Evidence */}
+        {/* 5. Evidence */}
         <section>
           <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">6</span>
-            <h3 className="font-bold text-gray-900">Evidence (Optional)</h3>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">5</span>
+            <h3 className="font-bold text-gray-900">Evidence Document (Optional)</h3>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Photo or PDF</label>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Report Photo or PDF</label>
             <input 
               type="file" 
+              name="evidence"
               accept=".jpg,.jpeg,.png,.pdf"
               onChange={handleFileChange}
               className={`w-full rounded-md border bg-gray-50 p-2 text-sm text-gray-600 focus:outline-none focus:ring-1 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#0d4a30] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#0a3a25] ${
@@ -289,8 +282,6 @@ const handleSubmit = async (e) => {
                   : "border-gray-300 focus:border-green-700 focus:ring-green-700"
               }`} 
             />
-            
-            {/* Conditional Error Rendering */}
             {fileError ? (
               <p className="mt-1 text-xs font-bold text-red-600">{fileError}</p>
             ) : (
@@ -301,30 +292,14 @@ const handleSubmit = async (e) => {
 
         {/* Footer Actions */}
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
-          <button 
-            type="button" 
-            onClick={onBack}
-            disabled={isSubmitting}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
+          <button type="button" onClick={onBack} disabled={isSubmitting} className="rounded-md border border-gray-300 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50">
             Cancel
           </button>
-          
-          <button 
-            type="submit" 
-            disabled={isSubmitting} 
-            className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-6 py-2 text-sm font-bold text-white hover:bg-[#0a3a25] disabled:cursor-not-allowed disabled:opacity-70 transition-all"
-          >
+          <button type="submit" disabled={isSubmitting} className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-6 py-2 text-sm font-bold text-white hover:bg-[#0a3a25] disabled:cursor-not-allowed disabled:opacity-70 transition-all">
             {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Submitting...
-              </>
+              <><Loader2 className="h-4 w-4 animate-spin" /> Submitting...</>
             ) : (
-              <>
-                <Send className="h-4 w-4" />
-                Submit Report
-              </>
+              <><Send className="h-4 w-4" /> Submit Report</>
             )}
           </button>
         </div>

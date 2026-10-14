@@ -67,21 +67,20 @@ public class DashboardController {
 
         if (profile.isEmpty()) return ResponseEntity.notFound().build();
 
-        // Calculate Work Summary stats dynamically from reports
         long activitiesCompleted = recentReports.size();
-        double hoursContributed = recentReports.stream().mapToDouble(DailyWorkReport::getTotalHours).sum();
-        long beneficiaries = recentReports.stream().mapToLong(DailyWorkReport::getTotalBeneficiaries).sum();
+        long beneficiaries = recentReports.stream()
+                .mapToLong(r -> r.getTotalBeneficiaries() != null ? r.getTotalBeneficiaries() : 0)
+                .sum();
 
-        // Package all data required by the frontend dashboard
         Map<String, Object> dashboardData = new HashMap<>();
         dashboardData.put("profile", profile.get());
         dashboardData.put("workSummary", Map.of(
                 "activitiesCompleted", activitiesCompleted,
-                "hoursContributed", hoursContributed,
+                "hoursContributed", 0, // Set to 0 since time tracking is removed
                 "beneficiariesReached", beneficiaries,
                 "reportsSubmitted", activitiesCompleted
         ));
-        dashboardData.put("recentActivity", recentReports.stream().limit(5)); // Top 5 recent
+        dashboardData.put("recentActivity", recentReports.stream().limit(5));
 
         return ResponseEntity.ok(dashboardData);
     }

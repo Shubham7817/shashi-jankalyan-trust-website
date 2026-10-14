@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -17,7 +16,6 @@ public class DailyWorkReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Links this work report to the specific volunteer who submitted it
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserCredential user;
@@ -32,10 +30,6 @@ public class DailyWorkReport {
     private String objective;
     private String activityLocation;
 
-    private LocalTime startTime;
-    private LocalTime endTime;
-
-    private Double totalHours;
     private Integer totalBeneficiaries;
 
     @Column(columnDefinition = "TEXT")
@@ -44,10 +38,20 @@ public class DailyWorkReport {
     private String projectName;
     private String projectId;
 
-    // --- NEW FIELDS ADDED HERE ---
-    private Integer influencedContributors;
-    private Double totalContributionAmount;
-    private String evidenceUrl;
+    // --- NEW FIELDS FOR FUNDRAISING & INFLUENCE ---
+    private String contributorName;
+    private String beneficiaryName;
+    private String parentName; // Father/Mother Name
+    private String address;
+    private String mobileNumber;
+    private String aadhaarNumber;
+    private Integer age;
+    private String category;
+    private Double amount;
+    private LocalDate dob;
+    private LocalDate recordDate;
 
-//    private String approvalStatus = "Under Review";
+    // Supabase File URLs
+    private String beneficiaryPhotoUrl;
+    private String evidenceUrl;
 }
