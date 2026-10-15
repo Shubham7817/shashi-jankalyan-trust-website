@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Search, Calendar, FilterX } from "lucide-react";
+import { ArrowLeft, Search, Calendar, FilterX, FileText, Image as ImageIcon } from "lucide-react";
 
 export default function MyReportsView({ onBack }) {
   const [reports, setReports] = useState([]);
@@ -13,12 +13,11 @@ export default function MyReportsView({ onBack }) {
     const fetchAllReports = async () => {
       const volunteerId = sessionStorage.getItem("volunteerId");
       try {
-        // const response = await fetch(`http://localhost:8080/api/reports/user/${volunteerId}`);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/user/${volunteerId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/reports/user/${volunteerId}`);
         if (response.ok) {
           const data = await response.json();
           setReports(data);
-          setFilteredReports(data); // Initially show all
+          setFilteredReports(data); 
         }
       } catch (error) {
         console.error("Failed to fetch reports", error);
@@ -29,7 +28,6 @@ export default function MyReportsView({ onBack }) {
     fetchAllReports();
   }, []);
 
-  // Handle Filtering
   const applyFilter = () => {
     if (!filterDate) {
       setFilteredReports(reports);
@@ -45,6 +43,7 @@ export default function MyReportsView({ onBack }) {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit', month: 'short', year: 'numeric'
     });
@@ -56,7 +55,6 @@ export default function MyReportsView({ onBack }) {
 
   return (
     <div className="mx-auto max-w-7xl rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
-      {/* Header */}
       <div className="flex items-center gap-4 border-b border-gray-200 bg-[#0d4a30] p-4 text-white">
         <button onClick={onBack} className="rounded-full p-2 hover:bg-white/20 transition-colors">
           <ArrowLeft className="h-5 w-5" />
@@ -68,7 +66,6 @@ export default function MyReportsView({ onBack }) {
       </div>
 
       <div className="p-6">
-        {/* Filter Toolbar */}
         <div className="mb-6 flex flex-wrap items-end gap-4 rounded-lg bg-gray-50 p-4 border border-gray-200">
           <div>
             <label className="mb-1 block text-sm font-semibold text-gray-700">Filter by Date</label>
@@ -100,20 +97,23 @@ export default function MyReportsView({ onBack }) {
           )}
         </div>
 
-        {/* Data Table */}
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
-          <table className="w-full text-left text-sm text-gray-600">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 pb-2">
+          <table className="w-full text-left text-sm text-gray-600 whitespace-nowrap">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th className="px-4 py-3 font-bold">Date</th>
+                <th className="px-4 py-3 font-bold">Activity Date</th>
                 <th className="px-4 py-3 font-bold">Program</th>
-                <th className="px-4 py-3 font-bold">Activity Type</th>
-                <th className="px-4 py-3 font-bold">Hours</th>
-                <th className="px-4 py-3 font-bold">Beneficiaries</th>
-                {/* NEW HEADERS */}
-                <th className="px-4 py-3 font-bold">Influenced</th>
-                <th className="px-4 py-3 font-bold">Collected (₹)</th>
-                <th className="px-4 py-3 font-bold">Evidence</th>
+                <th className="px-4 py-3 font-bold">Beneficiary Name</th>
+                <th className="px-4 py-3 font-bold">Parent Name</th>
+                <th className="px-4 py-3 font-bold">Contributor</th>
+                <th className="px-4 py-3 font-bold">Amount (₹)</th>
+                <th className="px-4 py-3 font-bold">Mobile</th>
+                <th className="px-4 py-3 font-bold">Aadhaar</th>
+                <th className="px-4 py-3 font-bold">Age & Category</th>
+                <th className="px-4 py-3 font-bold">DOB</th>
+                <th className="px-4 py-3 font-bold">Record Date</th>
+                <th className="px-4 py-3 font-bold">Address</th>
+                <th className="px-4 py-3 font-bold">Documents</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -121,29 +121,57 @@ export default function MyReportsView({ onBack }) {
                 filteredReports.map((report) => (
                   <tr key={report.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">{formatDate(report.activityDate)}</td>
-                    <td className="px-4 py-3">{report.programName}</td>
-                    <td className="px-4 py-3">{report.activityType}</td>
-                    <td className="px-4 py-3">{report.totalHours || 0}</td>
-                    <td className="px-4 py-3">{report.totalBeneficiaries || 0}</td>
+                    <td className="px-4 py-3 truncate max-w-[150px]" title={report.programName}>{report.programName}</td>
                     
-                    {/* NEW DATA CELLS */}
-                    <td className="px-4 py-3">{report.influencedContributors || "-"}</td>
-                    <td className="px-4 py-3 font-medium text-green-700">
-                      {report.totalContributionAmount ? `₹${report.totalContributionAmount}` : "-"}
+                    <td className="px-4 py-3 font-medium text-gray-900">{report.beneficiaryName || "-"}</td>
+                    <td className="px-4 py-3">{report.parentName || "-"}</td>
+                    <td className="px-4 py-3">{report.contributorName || "-"}</td>
+                    
+                    <td className="px-4 py-3 font-bold text-green-700">
+                      {report.amount ? `₹${report.amount}` : "-"}
                     </td>
-                    {/* NEW EVIDENCE CELL */}
-                          {/* NEW EVIDENCE CELL */}
+                    
+                    <td className="px-4 py-3">{report.mobileNumber || "-"}</td>
+                    <td className="px-4 py-3 font-mono">
+                      {report.aadhaarNumber && report.aadhaarNumber.length >= 4 
+                        ? `********${report.aadhaarNumber.slice(-4)}` 
+                        : (report.aadhaarNumber || "-")}
+                    </td>
+                    
                     <td className="px-4 py-3">
+                      {report.age ? `${report.age}y` : "-"} {report.category ? `/ ${report.category}` : ""}
+                    </td>
+                    
+                    <td className="px-4 py-3">{formatDate(report.dob)}</td>
+                    <td className="px-4 py-3">{formatDate(report.recordDate)}</td>
+                    <td className="px-4 py-3 truncate max-w-[150px]" title={report.address}>{report.address || "-"}</td>
+                    
+                    <td className="px-4 py-3 flex gap-2">
                       {report.evidenceUrl ? (
                         <a 
                           href={report.evidenceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"
+                          title="View Report Evidence"
+                          className="inline-flex items-center justify-center rounded-md bg-blue-50 p-1.5 text-blue-700 hover:bg-blue-100"
                         >
-                          View File
+                          <FileText className="h-4 w-4" />
                         </a>
-                      ) : (
+                      ) : null}
+                      
+                      {report.beneficiaryPhotoUrl ? (
+                        <a 
+                          href={report.beneficiaryPhotoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="View Beneficiary Photo"
+                          className="inline-flex items-center justify-center rounded-md bg-emerald-50 p-1.5 text-emerald-700 hover:bg-emerald-100"
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                        </a>
+                      ) : null}
+
+                      {!report.evidenceUrl && !report.beneficiaryPhotoUrl && (
                         <span className="text-xs text-gray-400 font-medium">None</span>
                       )}
                     </td>
@@ -151,7 +179,7 @@ export default function MyReportsView({ onBack }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-gray-500">
+                  <td colSpan="13" className="py-8 text-center text-gray-500">
                     No reports found for the selected date.
                   </td>
                 </tr>
