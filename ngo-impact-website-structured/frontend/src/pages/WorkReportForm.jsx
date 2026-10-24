@@ -40,13 +40,11 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
     schoolName: initialData?.schoolName || ""
   });
 
-  // NEW: Dynamic SHG Members State
   const [shgMembers, setShgMembers] = useState(() => {
     if (initialData?.additionalMembersDetails) {
       try {
         return JSON.parse(initialData.additionalMembersDetails);
       } catch (e) {
-        // Fallback for legacy plain text data
         return [{ name: initialData.beneficiaryName, husbandName: initialData.husbandName, mobile: initialData.mobileNumber, address: initialData.additionalMembersDetails }];
       }
     }
@@ -59,7 +57,6 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // NEW: Handle dynamic member input changes
   const handleMemberChange = (index, field, value) => {
     const updatedMembers = [...shgMembers];
     updatedMembers[index][field] = value;
@@ -110,13 +107,12 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
 
       const finalReportData = { ...formData, evidenceUrl, beneficiaryPhotoUrl };
 
-      // NEW: Sync the dynamic array into the payload before sending
       if (formData.activityType === "SHG") {
         finalReportData.totalMembers = shgMembers.length;
         finalReportData.beneficiaryName = shgMembers[0]?.name || "";
         finalReportData.husbandName = shgMembers[0]?.husbandName || "";
         finalReportData.mobileNumber = shgMembers[0]?.mobile || "";
-        finalReportData.additionalMembersDetails = JSON.stringify(shgMembers); // Stored securely as JSON string
+        finalReportData.additionalMembersDetails = JSON.stringify(shgMembers); 
       }
 
       const isEditing = !!initialData?.id;
@@ -211,7 +207,6 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               
-              {/* OTHER CATEGORY FIELDS OMITTED FOR BREVITY BUT REMAIN THE SAME AS YOUR PREVIOUS CODE */}
               {type === "Health" && (
                 <>
                   <div><label className="text-sm font-semibold mb-1 block">Patient Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
@@ -227,7 +222,59 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                 </>
               )}
 
-              {/* NEW DYNAMIC SHG SECTION */}
+              {type === "Soil Testing" && (
+                <>
+                  <div><label className="text-sm font-semibold mb-1 block">Farmer Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                </>
+              )}
+
+              {type === "Women Empowerment" && (
+                <>
+                  <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Type of Training</label><input type="text" name="trainingType" value={formData.trainingType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                </>
+              )}
+
+              {type === "Awareness" && (
+                <>
+                  <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Category</label>
+                    <select name="category" value={formData.category} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md bg-white">
+                      <option value="">Select Category</option>
+                      <option value="SC">SC</option><option value="ST">ST</option>
+                      <option value="OBC">OBC</option><option value="EBC">EBC</option>
+                      <option value="General">General</option>
+                    </select>
+                  </div>
+                  <div><label className="text-sm font-semibold mb-1 block">Village</label><input type="text" name="village" value={formData.village} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                </>
+              )}
+
+              {type === "Education" && (
+                <>
+                  <div><label className="text-sm font-semibold mb-1 block">Student Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Class / Grade</label><input type="text" name="classOrGrade" value={formData.classOrGrade} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">School Name</label><input type="text" name="schoolName" value={formData.schoolName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                </>
+              )}
+
+              {/* DYNAMIC SHG SECTION */}
               {type === "SHG" && (
                 <div className="md:col-span-3 space-y-4">
                   <div className="md:w-1/3">
