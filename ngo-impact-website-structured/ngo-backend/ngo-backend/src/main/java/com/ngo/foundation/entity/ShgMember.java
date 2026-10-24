@@ -19,6 +19,8 @@ public class ShgMember {
     private String address;
     private String aadhaarNumber;
     private String panNumber;
+    // Add this in the Personal Info / Beneficiary section
+    private String husbandName;
 
     // Bank Info
     private String bankAccountNumber;
@@ -33,7 +35,12 @@ public class ShgMember {
     private String aadhaarPhotoUrl;
     private String panPhotoUrl;
     private String selfPhotoUrl;
-    private String passbookPhotoUrl; // <-- NEW: Added Passbook Photo URL
+    private String passbookPhotoUrl;
+
+    // Add these fields to your ShgMember.java Entity
+    private Double amountPaid;
+    private String paymentStatus; // e.g., "PARTIAL" or "COMPLETED"
+    private String paymentId;     // To store the Razorpay Transaction ID// <-- NEW: Added Passbook Photo URL
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

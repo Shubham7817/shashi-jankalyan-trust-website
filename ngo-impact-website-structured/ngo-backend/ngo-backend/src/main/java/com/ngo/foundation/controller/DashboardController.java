@@ -112,4 +112,25 @@ public class DashboardController {
         List<DailyWorkReport> allReports = reportRepo.findByUser_IdOrderByActivityDateDesc(userId);
         return ResponseEntity.ok(allReports);
     }
+
+    @PutMapping("/reports/edit/{reportId}")
+    public ResponseEntity<?> updateWorkReport(
+            @PathVariable Long reportId,
+            @RequestBody DailyWorkReport updatedReport) {
+
+        Optional<DailyWorkReport> existingOpt = reportRepo.findById(reportId);
+        if (existingOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Report not found");
+        }
+
+        DailyWorkReport existingReport = existingOpt.get();
+
+        // Retain the original user and ID
+        updatedReport.setId(existingReport.getId());
+        updatedReport.setUser(existingReport.getUser());
+
+        // Save overwrites the existing row with the new data
+        DailyWorkReport savedReport = reportRepo.save(updatedReport);
+        return ResponseEntity.ok(savedReport);
+    }
 }
