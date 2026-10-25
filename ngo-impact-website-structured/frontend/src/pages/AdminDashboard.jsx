@@ -276,8 +276,8 @@ export default function AdminDashboard() {
                           <span>{report.mobileNumber || "-"}</span>
                           <span className="font-mono text-xs text-gray-500">
                             {report.aadhaarNumber && report.aadhaarNumber.length >= 4 
-                              ? `********${report.aadhaarNumber.slice(-4)}` 
-                              : "[Aadhaar Redacted]"}
+                              ? report.aadhaarNumber 
+                              : "[Aadhaar Number]"}
                           </span>
                         </div>
                       </td>
@@ -359,8 +359,8 @@ export default function AdminDashboard() {
                       <td className="px-4 py-4">
                         <div className="font-mono text-gray-900">
                            {shg.aadhaarNumber && shg.aadhaarNumber.length >= 4 
-                              ? `********${shg.aadhaarNumber.slice(-4)}` 
-                              : "[Aadhaar Redacted]"}
+                              ?shg.aadhaarNumber 
+                              : "[Aadhaar Number]"}
                         </div>
                         <div className="font-mono text-xs text-gray-500 uppercase">{shg.panNumber}</div>
                       </td>
