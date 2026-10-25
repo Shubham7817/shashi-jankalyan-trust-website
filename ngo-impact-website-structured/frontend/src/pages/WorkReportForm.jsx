@@ -14,6 +14,8 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
     activityType: initialData?.activityType || "",
     activityLocation: initialData?.activityLocation || "",
     
+    amount: initialData?.amount || "", // <-- ADDED THIS FIELD
+    
     beneficiaryName: initialData?.beneficiaryName || "",
     fatherName: initialData?.fatherName || "",
     motherName: initialData?.motherName || "",
@@ -192,10 +194,10 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
             <div><span className="text-gray-500 block">Block</span><span className="font-semibold">{formData.block}</span></div>
             <div><span className="text-gray-500 block">Panchayat</span><span className="font-semibold">{formData.panchayat}</span></div>
           </div>
-          <div>
+          {/* <div>
             <label className="mb-1 block text-sm font-semibold text-gray-700">Activity Location *</label>
             <input type="text" name="activityLocation" value={formData.activityLocation} onChange={handleChange} required placeholder="e.g. Government School, XYZ" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700" />
-          </div>
+          </div> */}
         </section>
 
         {type && (
@@ -214,7 +216,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Enter Your 12-digit Aadhaar Number]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Type of Disease</label><input type="text" name="diseaseType" value={formData.diseaseType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Loan Amount</label><input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
@@ -235,7 +237,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Enter Your 12-digit Aadhaar Number]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Type of Training</label><input type="text" name="trainingType" value={formData.trainingType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
@@ -248,7 +250,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Enter Your 12-digit Aadhaar Number]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Category</label>
                     <select name="category" value={formData.category} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md bg-white">
                       <option value="">Select Category</option>
@@ -273,57 +275,57 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                 </>
               )}
+            </div>
 
-              {/* DYNAMIC SHG SECTION */}
-              {type === "SHG" && (
-                <div className="md:col-span-3 space-y-4">
-                  <div className="md:w-1/3">
-                    <label className="text-sm font-semibold mb-1 block">Name of SHG Group</label>
-                    <input type="text" name="shgName" required value={formData.shgName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" />
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-4 border-b border-green-200 pb-2">
-                    <h4 className="font-bold text-gray-800">Group Members ({shgMembers.length})</h4>
-                    <button type="button" onClick={addMember} className="flex items-center gap-1 text-xs bg-green-600 text-white px-3 py-1.5 rounded-md font-bold hover:bg-green-700 transition-colors">
-                      <Plus className="h-3 w-3" /> Add Member
-                    </button>
-                  </div>
+            {/* DYNAMIC SHG SECTION */}
+            {type === "SHG" && (
+              <div className="space-y-4">
+                <div className="md:w-1/3">
+                  <label className="text-sm font-semibold mb-1 block">Name of SHG Group</label>
+                  <input type="text" name="shgName" required value={formData.shgName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" />
+                </div>
+                
+                <div className="flex items-center justify-between mt-4 border-b border-green-200 pb-2">
+                  <h4 className="font-bold text-gray-800">Group Members ({shgMembers.length})</h4>
+                  <button type="button" onClick={addMember} className="flex items-center gap-1 text-xs bg-green-600 text-white px-3 py-1.5 rounded-md font-bold hover:bg-green-700 transition-colors">
+                    <Plus className="h-3 w-3" /> Add Member
+                  </button>
+                </div>
 
-                  <div className="space-y-3">
-                    {shgMembers.map((member, index) => (
-                      <div key={index} className="p-4 border border-gray-200 rounded-lg bg-white relative shadow-sm">
-                        {index > 0 && (
-                          <button type="button" onClick={() => removeMember(index)} className="absolute top-3 right-3 text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded-md transition-colors" title="Remove Member">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                        <p className="text-xs font-bold text-emerald-700 mb-3 uppercase tracking-wider">
-                          Member {index + 1} {index === 0 ? " (Primary Leader)" : ""}
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 mb-1 block">Member's Name</label>
-                            <input type="text" required value={member.name} onChange={(e) => handleMemberChange(index, "name", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 mb-1 block">Husband Name</label>
-                            <input type="text" value={member.husbandName} onChange={(e) => handleMemberChange(index, "husbandName", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 mb-1 block">Mobile Number</label>
-                            <input type="tel" value={member.mobile} onChange={(e) => handleMemberChange(index, "mobile", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 mb-1 block">Address</label>
-                            <input type="text" value={member.address} onChange={(e) => handleMemberChange(index, "address", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
-                          </div>
+                <div className="space-y-3">
+                  {shgMembers.map((member, index) => (
+                    <div key={index} className="p-4 border border-gray-200 rounded-lg bg-white relative shadow-sm">
+                      {index > 0 && (
+                        <button type="button" onClick={() => removeMember(index)} className="absolute top-3 right-3 text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded-md transition-colors" title="Remove Member">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                      <p className="text-xs font-bold text-emerald-700 mb-3 uppercase tracking-wider">
+                        Member {index + 1} {index === 0 ? " (Primary Leader)" : ""}
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                          <label className="text-xs font-semibold text-gray-500 mb-1 block">Member's Name</label>
+                          <input type="text" required value={member.name} onChange={(e) => handleMemberChange(index, "name", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-gray-500 mb-1 block">Husband Name</label>
+                          <input type="text" value={member.husbandName} onChange={(e) => handleMemberChange(index, "husbandName", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-gray-500 mb-1 block">Mobile Number</label>
+                          <input type="tel" value={member.mobile} onChange={(e) => handleMemberChange(index, "mobile", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-gray-500 mb-1 block">Address</label>
+                          <input type="text" value={member.address} onChange={(e) => handleMemberChange(index, "address", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             
             {["Women Empowerment", "Awareness", "SHG"].includes(type) && (
               <div className="pt-4 border-t border-gray-300">
@@ -338,7 +340,25 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
         <section>
           <div className="mb-4 flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">{type ? "4" : "3"}</span>
-            <h3 className="font-bold text-gray-900">Evidence Document (Optional)</h3>
+            <h3 className="font-bold text-gray-900">Collection Details</h3>
+          </div>
+          <div className="md:w-1/3">
+            <label className="mb-1 block text-sm font-semibold text-gray-700">Amount Collected (₹)</label>
+            <input 
+              type="number" 
+              name="amount" 
+              value={formData.amount} 
+              onChange={handleChange} 
+              min="0"
+              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700" 
+            />
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">{type ? "5" : "4"}</span>
+            <h3 className="font-bold text-gray-900">Amount PDF</h3>
           </div>
           <div>
             <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Report Photo or PDF</label>

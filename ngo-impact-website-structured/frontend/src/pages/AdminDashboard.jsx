@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, LogOut, Clock, FileText, Image as ImageIcon, Users, CreditCard, BookOpen } from "lucide-react";
+import { 
+  ShieldCheck, LogOut, Clock, FileText, Image as ImageIcon, 
+  Users, CreditCard, BookOpen, Search, Calendar, FilterX 
+} from "lucide-react";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -9,6 +12,11 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   
   const [activeTab, setActiveTab] = useState("reports");
+
+  // NEW: Filter States
+  const [filterDate, setFilterDate] = useState("");
+  const [filteredReports, setFilteredReports] = useState([]);
+  const [filteredShgData, setFilteredShgData] = useState([]);
 
   useEffect(() => {
     const currentUsername = sessionStorage.getItem("username");
@@ -28,10 +36,14 @@ export default function AdminDashboard() {
         ]);
 
         if (reportsRes.ok) {
-          setAllReports(await reportsRes.json());
+          const rData = await reportsRes.json();
+          setAllReports(rData);
+          setFilteredReports(rData); // Initialize filtered state
         }
         if (shgRes.ok) {
-          setShgData(await shgRes.json());
+          const sData = await shgRes.json();
+          setShgData(sData);
+          setFilteredShgData(sData); // Initialize filtered state
         }
       } catch (error) {
         console.error("Failed to fetch admin data", error);
@@ -42,6 +54,31 @@ export default function AdminDashboard() {
 
     fetchAdminData();
   }, [navigate]);
+
+  // NEW: Filter Logic
+  const applyFilter = () => {
+    if (!filterDate) {
+      setFilteredReports(allReports);
+      setFilteredShgData(shgData);
+      return;
+    }
+    
+    // Filter Work Reports by activityDate
+    setFilteredReports(
+      allReports.filter(report => report.activityDate === filterDate)
+    );
+
+    // Filter SHG Applications by createdAt (matching the YYYY-MM-DD prefix)
+    setFilteredShgData(
+      shgData.filter(shg => shg.createdAt && shg.createdAt.startsWith(filterDate))
+    );
+  };
+
+  const clearFilter = () => {
+    setFilterDate("");
+    setFilteredReports(allReports);
+    setFilteredShgData(shgData);
+  };
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -56,7 +93,6 @@ export default function AdminDashboard() {
   };
 
   // Helper to dynamically render specific fields based on activity type
-// Helper to dynamically render specific fields based on activity type
   const renderSpecificDetails = (report) => {
     const details = [];
     if (report.diseaseType) details.push(`Disease: ${report.diseaseType}`);
@@ -67,7 +103,8 @@ export default function AdminDashboard() {
     if (report.classOrGrade) details.push(`Class: ${report.classOrGrade}`);
     if (report.schoolName) details.push(`School: ${report.schoolName}`);
     
-    // Handle the parsed SHG Members JSON array
+    if (report.amount) details.push(`Collected: ₹${report.amount}`);
+    
     if (report.activityType === "SHG" && report.shgName) {
       details.push(`SHG: ${report.shgName}`);
       details.push(`Total Members: ${report.totalMembers || 0}`);
@@ -76,7 +113,6 @@ export default function AdminDashboard() {
         if (report.additionalMembersDetails) {
           const members = JSON.parse(report.additionalMembersDetails);
           if (Array.isArray(members)) {
-            // Append formatted strings for each member including all 4 details
             members.forEach((m, idx) => {
               if (m.name) {
                 let memberInfo = `M${idx + 1}: ${m.name}`;
@@ -90,7 +126,6 @@ export default function AdminDashboard() {
           }
         }
       } catch (e) {
-        // Fallback if the data is old plain text
         details.push(`Members Data: ${report.additionalMembersDetails}`);
       }
     }
@@ -135,10 +170,12 @@ export default function AdminDashboard() {
           <ShieldCheck className="h-6 w-6 text-green-400" />
           <h1 className="font-serif text-xl font-bold tracking-wide">Admin Portal</h1>
         </div>
+
       </header>
 
       <main className="mx-auto max-w-[95%] lg:max-w-screen-2xl p-6 lg:p-8">
         
+        {/* TABS */}
         <div className="mb-6 flex gap-4 border-b border-gray-200 pb-4">
           <button 
             onClick={() => setActiveTab("reports")}
@@ -165,6 +202,39 @@ export default function AdminDashboard() {
           </button>
         </div>
 
+        {/* NEW: FILTER TOOLBAR */}
+        <div className="mb-6 flex flex-wrap items-end gap-4 rounded-lg bg-gray-50 p-4 border border-gray-200">
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">Filter by Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input 
+                type="date" 
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="w-48 rounded-md border border-gray-300 py-2 pl-10 pr-3 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700" 
+              />
+            </div>
+          </div>
+          
+          <button 
+            onClick={applyFilter}
+            className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-4 py-2 text-sm font-bold text-white hover:bg-[#0a3a25]"
+          >
+            <Search className="h-4 w-4" /> Apply Filter
+          </button>
+          
+          {filterDate && (
+            <button 
+              onClick={clearFilter}
+              className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-100"
+            >
+              <FilterX className="h-4 w-4" /> Clear
+            </button>
+          )}
+        </div>
+
+        {/* TABLES */}
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="overflow-x-auto pb-2">
             
@@ -180,13 +250,14 @@ export default function AdminDashboard() {
                     <th className="px-4 py-3 font-bold">Relatives</th>
                     <th className="px-4 py-3 font-bold">Contact & ID</th>
                     <th className="px-4 py-3 font-bold">Demographics</th>
-                    {/* <th className="px-4 py-3 font-bold">Location</th> */}
+                    <th className="px-4 py-3 font-bold">Location</th>
                     <th className="px-4 py-3 font-bold">Activity Specifics</th>
                     <th className="px-4 py-3 font-bold text-center">Documents</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allReports.length > 0 ? allReports.map((report) => (
+                  {/* CHANGED FROM allReports TO filteredReports */}
+                  {filteredReports.length > 0 ? filteredReports.map((report) => (
                     <tr key={report.id} className="hover:bg-gray-50 align-top">
                       <td className="px-4 py-3 font-medium text-gray-900">{formatDate(report.activityDate)}</td>
                       <td className="px-4 py-3 font-semibold text-blue-700">{report.user?.username || "Unknown"}</td>
@@ -205,8 +276,8 @@ export default function AdminDashboard() {
                           <span>{report.mobileNumber || "-"}</span>
                           <span className="font-mono text-xs text-gray-500">
                             {report.aadhaarNumber && report.aadhaarNumber.length >= 4 
-                              ? report.aadhaarNumber 
-                              : "----"}
+                              ? `********${report.aadhaarNumber.slice(-4)}` 
+                              : "[Aadhaar Redacted]"}
                           </span>
                         </div>
                       </td>
@@ -219,7 +290,7 @@ export default function AdminDashboard() {
                         </div>
                       </td>
 
-                      {/* <td className="px-4 py-3">
+                      <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5 text-xs text-gray-600 truncate max-w-[150px]" title={[report.village, report.panchayat, report.block, report.address].filter(Boolean).join(", ")}>
                           {report.village && <span>V: {report.village}</span>}
                           {report.panchayat && <span>P: {report.panchayat}</span>}
@@ -227,7 +298,7 @@ export default function AdminDashboard() {
                           {report.address && <span>A: {report.address}</span>}
                           {!report.village && !report.panchayat && !report.block && !report.address && "-"}
                         </div>
-                      </td> */}
+                      </td>
 
                       <td className="px-4 py-3">
                         {renderSpecificDetails(report)}
@@ -249,7 +320,7 @@ export default function AdminDashboard() {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan="10" className="py-12 text-center text-gray-500 font-medium">No reports have been submitted yet.</td>
+                      <td colSpan="10" className="py-12 text-center text-gray-500 font-medium">No reports found for this date.</td>
                     </tr>
                   )}
                 </tbody>
@@ -274,7 +345,8 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {shgData.length > 0 ? shgData.map((shg) => (
+                  {/* CHANGED FROM shgData TO filteredShgData */}
+                  {filteredShgData.length > 0 ? filteredShgData.map((shg) => (
                     <tr key={shg.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4 font-medium text-gray-900">{formatDate(shg.createdAt)}</td>
                       <td className="px-4 py-4 font-bold text-gray-900">{shg.name}</td>
@@ -287,8 +359,8 @@ export default function AdminDashboard() {
                       <td className="px-4 py-4">
                         <div className="font-mono text-gray-900">
                            {shg.aadhaarNumber && shg.aadhaarNumber.length >= 4 
-                              ? shg.aadhaarNumber
-                              : "--"}
+                              ? `********${shg.aadhaarNumber.slice(-4)}` 
+                              : "[Aadhaar Redacted]"}
                         </div>
                         <div className="font-mono text-xs text-gray-500 uppercase">{shg.panNumber}</div>
                       </td>
@@ -327,7 +399,7 @@ export default function AdminDashboard() {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan="10" className="py-12 text-center text-gray-500 font-medium">No SHG applications found.</td>
+                      <td colSpan="10" className="py-12 text-center text-gray-500 font-medium">No SHG applications found for this date.</td>
                     </tr>
                   )}
                 </tbody>

@@ -49,6 +49,7 @@ export default function MyReportsView({ onBack, onEdit }) {
 
   // Helper to dynamically render specific fields based on activity type
 // Helper to dynamically render specific fields based on activity type
+// Helper to dynamically render specific fields based on activity type
   const renderSpecificDetails = (report) => {
     const details = [];
     if (report.diseaseType) details.push(`Disease: ${report.diseaseType}`);
@@ -58,6 +59,9 @@ export default function MyReportsView({ onBack, onEdit }) {
     if (report.category) details.push(`Category: ${report.category}`);
     if (report.classOrGrade) details.push(`Class: ${report.classOrGrade}`);
     if (report.schoolName) details.push(`School: ${report.schoolName}`);
+    
+    // NEW: Display the collected amount
+    if (report.amount) details.push(`Collected: ₹${report.amount}`);
     
     // Handle the parsed SHG Members JSON array
     if (report.activityType === "SHG" && report.shgName) {
