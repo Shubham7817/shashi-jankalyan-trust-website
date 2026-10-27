@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
     // This tells Spring to automatically write a SQL query to check for duplicates
-    boolean existsByEmailOrPhoneOrName(String email, String phone,String name);
+    boolean existsByNameAndEmailAndPhone(String email, String phone,String name);
 }

@@ -31,6 +31,7 @@ import Partners from "./pages/Partners";
 import SelfHelpGroups from "./pages/SelfHelpGroups";
 import JoinShgForm from "./pages/JoinShgForm";
 import ShgSuccess from "./pages/ShgSuccess";
+import VolunteerSuccess from "./pages/VolunteerSuccess";
 
 export default function App() {
   return (
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/news" element={<News />} />
         <Route path="/join-shg" element={<JoinShgForm />} />
+        <Route path="/volunteer-success" element={<VolunteerSuccess />} />
 
 
         <Route path="/admin" element={<AdminDashboard />} /> 

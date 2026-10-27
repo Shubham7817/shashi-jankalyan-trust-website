@@ -9,14 +9,16 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [allReports, setAllReports] = useState([]);
   const [shgData, setShgData] = useState([]);
+  const [volunteerData, setVolunteerData] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [activeTab, setActiveTab] = useState("reports");
-
   // NEW: Filter States
   const [filterDate, setFilterDate] = useState("");
+  const [filterName, setFilterName] = useState("");
   const [filteredReports, setFilteredReports] = useState([]);
   const [filteredShgData, setFilteredShgData] = useState([]);
+  const [filteredVolunteerData, setFilteredVolunteerData] = useState([]);
 
   useEffect(() => {
     const currentUsername = sessionStorage.getItem("username");
@@ -30,9 +32,10 @@ export default function AdminDashboard() {
       try {
         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
         
-        const [reportsRes, shgRes] = await Promise.all([
+        const [reportsRes, shgRes, volunteerRes] = await Promise.all([
           fetch(`${baseUrl}/api/admin/reports`),
-          fetch(`${baseUrl}/api/shg/all`)
+          fetch(`${baseUrl}/api/shg/all`),
+          fetch(`${baseUrl}/api/volunteers/all`),
         ]);
 
         if (reportsRes.ok) {
@@ -45,6 +48,18 @@ export default function AdminDashboard() {
           setShgData(sData);
           setFilteredShgData(sData); // Initialize filtered state
         }
+        if (volunteerRes.ok) {
+          const vData = await volunteerRes.json();
+          const records = Array.isArray(vData) ? vData : [];
+          setVolunteerData(records);
+          setFilteredVolunteerData(records);
+        } else {
+          console.error(
+            "Failed to fetch volunteer registrations:",
+            volunteerRes.status,
+            await volunteerRes.text()
+          );
+        }
       } catch (error) {
         console.error("Failed to fetch admin data", error);
       } finally {
@@ -55,29 +70,50 @@ export default function AdminDashboard() {
     fetchAdminData();
   }, [navigate]);
 
-  // NEW: Filter Logic
+  // Filter by date, name, or both. An empty filter matches every record.
   const applyFilter = () => {
-    if (!filterDate) {
-      setFilteredReports(allReports);
-      setFilteredShgData(shgData);
-      return;
-    }
-    
-    // Filter Work Reports by activityDate
+    const searchName = filterName.trim().toLowerCase();
+    const matchesDate = (value) => {
+      if (!filterDate) return true;
+      if (!value) return false;
+      // Works with YYYY-MM-DD and ISO LocalDateTime strings.
+      return String(value).slice(0, 10) === filterDate;
+    };
+    const matchesName = (...values) => {
+      if (!searchName) return true;
+      return values.some((value) =>
+        String(value ?? "").toLowerCase().includes(searchName)
+      );
+    };
+
     setFilteredReports(
-      allReports.filter(report => report.activityDate === filterDate)
+      allReports.filter((report) =>
+        matchesDate(report.activityDate) &&
+        matchesName(report.user?.username)
+      )
     );
 
-    // Filter SHG Applications by createdAt (matching the YYYY-MM-DD prefix)
     setFilteredShgData(
-      shgData.filter(shg => shg.createdAt && shg.createdAt.startsWith(filterDate))
+      shgData.filter((shg) =>
+        matchesDate(shg.createdAt ?? shg.created_at) &&
+        matchesName(shg.name, shg.applicantName)
+      )
+    );
+
+    setFilteredVolunteerData(
+      volunteerData.filter((volunteer) =>
+        matchesDate(volunteer.createdAt ?? volunteer.created_at) &&
+        matchesName(volunteer.name)
+      )
     );
   };
 
   const clearFilter = () => {
     setFilterDate("");
+    setFilterName("");
     setFilteredReports(allReports);
     setFilteredShgData(shgData);
+    setFilteredVolunteerData(volunteerData);
   };
 
   const handleLogout = () => {
@@ -200,6 +236,18 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4" />
             Join SHG Applications
           </button>
+          <button 
+            onClick={() => setActiveTab("volunteer")}
+            className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-colors ${
+              activeTab === "volunteer" 
+              ? "bg-[#0d4a30] text-white shadow-sm" 
+              : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            Volunteer Registrations
+          </button>
+          {/* <button className="border border-gray-300 px-4 py-2 rounded-lg font-medium">Volunteer Registrations</button> */}
         </div>
 
         {/* NEW: FILTER TOOLBAR */}
@@ -217,6 +265,22 @@ export default function AdminDashboard() {
             </div>
           </div>
           
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">
+              Search by Name
+            </label>
+            <input
+              type="text"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") applyFilter();
+              }}
+              placeholder="Enter a name..."
+              className="w-56 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700"
+            />
+          </div>
+
           <button 
             onClick={applyFilter}
             className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-4 py-2 text-sm font-bold text-white hover:bg-[#0a3a25]"
@@ -224,7 +288,7 @@ export default function AdminDashboard() {
             <Search className="h-4 w-4" /> Apply Filter
           </button>
           
-          {filterDate && (
+          {(filterDate || filterName) && (
             <button 
               onClick={clearFilter}
               className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-100"
@@ -400,6 +464,140 @@ export default function AdminDashboard() {
                   )) : (
                     <tr>
                       <td colSpan="10" className="py-12 text-center text-gray-500 font-medium">No SHG applications found for this date.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+            
+            
+            {/* VOLUNTEER REGISTRATIONS VIEW */}
+            {activeTab === "volunteer" && (
+              <table className="w-full text-left text-sm text-gray-600 whitespace-nowrap">
+                <thead className="bg-emerald-50 text-emerald-900 border-b border-emerald-100">
+                  <tr>
+                    <th className="px-4 py-4 font-bold">Registered On</th>
+                    <th className="px-4 py-4 font-bold">Volunteer Name</th>
+                    <th className="px-4 py-4 font-bold">Father's Name</th>
+                    <th className="px-4 py-4 font-bold">Contact Details</th>
+                    <th className="px-4 py-4 font-bold">Date of Birth / Age</th>
+                    <th className="px-4 py-4 font-bold">Address</th>
+                    <th className="px-4 py-4 font-bold">Education</th>
+                    <th className="px-4 py-4 font-bold">Languages</th>
+                    <th className="px-4 py-4 font-bold">Payment</th>
+                    <th className="px-4 py-4 font-bold">Motivation</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-200">
+                  {filteredVolunteerData.length > 0 ? (
+                    filteredVolunteerData.map((volunteer) => (
+                      <tr
+                        key={volunteer.id}
+                        className="hover:bg-gray-50 align-top"
+                      >
+                        <td className="px-4 py-4 font-medium text-gray-900">
+                          {formatDate(volunteer.createdAt)}
+                        </td>
+
+                        <td className="px-4 py-4 font-bold text-gray-900">
+                          {volunteer.name || "-"}
+                        </td>
+
+                        <td className="px-4 py-4">
+                          {volunteer.fatherName || "-"}
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div>{volunteer.phone || "-"}</div>
+                          <div className="text-xs text-gray-500">
+                            {volunteer.email || "-"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            WhatsApp: {volunteer.whatsapp || "-"}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div>DOB: {volunteer.dob || "-"}</div>
+                          <div className="text-xs text-gray-500">
+                            Age group: {volunteer.ageGroup || "-"}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4 whitespace-normal min-w-48">
+                          <div>{volunteer.address || "-"}</div>
+                          <div className="text-xs text-gray-500">
+                            {[volunteer.block, volunteer.panchayat,
+                              volunteer.district, volunteer.state,
+                              volunteer.pincode]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {volunteer.country || ""}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div>{volunteer.highestEducation || "-"}</div>
+                          {volunteer.otherEducation && (
+                            <div className="text-xs text-gray-500">
+                              {volunteer.otherEducation}
+                            </div>
+                          )}
+                          {volunteer.educationDocUrl && (
+                            <a
+                              href={volunteer.educationDocUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              View document
+                            </a>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div>{volunteer.languagesKnown || "-"}</div>
+                          {volunteer.otherLanguage && (
+                            <div className="text-xs text-gray-500">
+                              Other: {volunteer.otherLanguage}
+                            </div>
+                          )}
+                          <div className="text-xs text-gray-500">
+                            English: {volunteer.englishProficiency || "-"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Hindi: {volunteer.hindiProficiency || "-"}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div>{volunteer.paymentStatus || "Pending"}</div>
+                          <div className="text-xs text-gray-500">
+                            Amount: ₹{volunteer.amountPaid ?? 0}
+                          </div>
+                          {volunteer.paymentId && (
+                            <div className="text-xs text-gray-500">
+                              ID: {volunteer.paymentId}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-4 whitespace-normal min-w-48">
+                          {volunteer.motivation || "-"}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={10}
+                        className="py-12 text-center text-gray-500 font-medium"
+                      >
+                        No volunteer registrations found for this date.
+                      </td>
                     </tr>
                   )}
                 </tbody>
