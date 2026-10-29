@@ -50,7 +50,7 @@ export default function MyReportsView({ onBack, onEdit }) {
   // Helper to dynamically render specific fields based on activity type
 // Helper to dynamically render specific fields based on activity type
 // Helper to dynamically render specific fields based on activity type
-  const renderSpecificDetails = (report) => {
+const renderSpecificDetails = (report) => {
     const details = [];
     if (report.diseaseType) details.push(`Disease: ${report.diseaseType}`);
     if (report.loanAmount) details.push(`Loan: ₹${report.loanAmount}`);
@@ -59,11 +59,8 @@ export default function MyReportsView({ onBack, onEdit }) {
     if (report.category) details.push(`Category: ${report.category}`);
     if (report.classOrGrade) details.push(`Class: ${report.classOrGrade}`);
     if (report.schoolName) details.push(`School: ${report.schoolName}`);
-    
-    // NEW: Display the collected amount
     if (report.amount) details.push(`Collected: ₹${report.amount}`);
     
-    // Handle the parsed SHG Members JSON array
     if (report.activityType === "SHG" && report.shgName) {
       details.push(`SHG: ${report.shgName}`);
       details.push(`Total Members: ${report.totalMembers || 0}`);
@@ -72,10 +69,10 @@ export default function MyReportsView({ onBack, onEdit }) {
         if (report.additionalMembersDetails) {
           const members = JSON.parse(report.additionalMembersDetails);
           if (Array.isArray(members)) {
-            // Append formatted strings for each member including all 4 details
             members.forEach((m, idx) => {
               if (m.name) {
                 let memberInfo = `M${idx + 1}: ${m.name}`;
+                if (m.position) memberInfo += ` (${m.position})`; // NEW: Appends the position
                 if (m.husbandName) memberInfo += ` (W/o ${m.husbandName})`;
                 if (m.mobile) memberInfo += ` | Ph: ${m.mobile}`;
                 if (m.address) memberInfo += ` | Add: ${m.address}`;
@@ -86,7 +83,6 @@ export default function MyReportsView({ onBack, onEdit }) {
           }
         }
       } catch (e) {
-        // Fallback if the data is old plain text
         details.push(`Members Data: ${report.additionalMembersDetails}`);
       }
     }
@@ -176,6 +172,7 @@ export default function MyReportsView({ onBack, onEdit }) {
                 <th className="px-4 py-3 font-bold">Demographics</th>
                 {/* <th className="px-4 py-3 font-bold">Location</th> */}
                 <th className="px-4 py-3 font-bold">Activity Specifics</th>
+                <th className="px-4 py-3 font-bold">Payment Status</th>
                 <th className="px-4 py-3 font-bold">Documents</th>
                 <th className="px-4 py-3 font-bold text-center">Actions</th>
               </tr>
@@ -226,6 +223,21 @@ export default function MyReportsView({ onBack, onEdit }) {
                     {/* Dynamic column that absorbs all the specific extra fields */}
                     <td className="px-4 py-3">
                       {renderSpecificDetails(report)}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {report.amount > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex w-fit items-center rounded-full px-2 py-1 text-xs font-semibold ${report.paymentStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            Paid ₹{report.amount}
+                          </span>
+                          {report.paymentId && (
+                            <span className="font-mono text-[10px] text-gray-500">Txn: {report.paymentId}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500 font-medium">N/A</span>
+                      )}
                     </td>
                     
                     <td className="px-4 py-3 flex gap-2">

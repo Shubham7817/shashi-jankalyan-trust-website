@@ -51,6 +51,11 @@ public class DailyWorkReport {
     private LocalDate dob;
     private String category;
     private Double amount;
+    @Column(name = "payment_id")
+    private String paymentId;
+
+    @Column(name = "payment_status")
+    private String paymentStatus;
     private Integer totalBeneficiaries;
     private String contributorName;
 

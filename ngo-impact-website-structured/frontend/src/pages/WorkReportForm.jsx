@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { ArrowLeft, Send, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Plus, Trash2, CreditCard } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+
+// IMPORT YOUR PAYMENT HOOK AND SERVICES
+import useRazorpay from "../hooks/useRazorpay";
+import { createPaymentOrder, verifyPayment } from "../services/paymentService";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -8,13 +12,16 @@ const supabase = createClient(
 );
 
 export default function WorkReportForm({ profile, initialData, onBack, onSuccess }) {
+  // INITIALIZE HOOK JUST LIKE DONATION FORM
+  const { loading, setLoading, loadRazorpay } = useRazorpay();
+
   const [formData, setFormData] = useState({
     activityDate: initialData?.activityDate || new Date().toISOString().split("T")[0],
     recordDate: initialData?.recordDate || new Date().toISOString().split("T")[0],
     activityType: initialData?.activityType || "",
     activityLocation: initialData?.activityLocation || "",
     
-    amount: initialData?.amount || "", // <-- ADDED THIS FIELD
+    amount: initialData?.amount || "",
     
     beneficiaryName: initialData?.beneficiaryName || "",
     fatherName: initialData?.fatherName || "",
@@ -47,14 +54,13 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
       try {
         return JSON.parse(initialData.additionalMembersDetails);
       } catch (e) {
-        return [{ name: initialData.beneficiaryName, husbandName: initialData.husbandName, mobile: initialData.mobileNumber, address: initialData.additionalMembersDetails }];
+        return [{ name: initialData.beneficiaryName, husbandName: initialData.husbandName, mobile: initialData.mobileNumber, address: initialData.additionalMembersDetails, position: "" }];
       }
     }
-    return [{ name: "", husbandName: "", mobile: "", address: "" }];
+    return [{ name: "", husbandName: "", mobile: "", address: "", position: "" }];
   });
 
   const [files, setFiles] = useState({ evidence: null, beneficiaryPhoto: null });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileError, setFileError] = useState("");
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -65,7 +71,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
     setShgMembers(updatedMembers);
   };
 
-  const addMember = () => setShgMembers([...shgMembers, { name: "", husbandName: "", mobile: "", address: "" }]);
+  const addMember = () => setShgMembers([...shgMembers, { name: "", husbandName: "", mobile: "", address: "", position: "" }]);
   const removeMember = (index) => setShgMembers(shgMembers.filter((_, i) => i !== index));
 
   const handleFileChange = (e) => {
@@ -95,10 +101,13 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     const volunteerId = sessionStorage.getItem("volunteerId");
+    const amountCollected = Number(formData.amount || 0);
 
     try {
+      setLoading(true); // Using hook's setLoading
+
+      // 1. Upload Images
       const evidenceUrl = files.evidence 
         ? await uploadFileToSupabase(files.evidence, 'reports') 
         : initialData?.evidenceUrl || null;
@@ -122,28 +131,96 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
         ? `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/reports/edit/${initialData.id}` 
         : `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/reports/${volunteerId}`;
 
-      const response = await fetch(endpoint, {
-        method: isEditing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalReportData),
-      });
+      // Helper to save report to DB
+      const saveReportToDatabase = async (payload) => {
+        const dbResponse = await fetch(endpoint, {
+          method: isEditing ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-      if (response.ok) onSuccess(); 
-      else alert("Failed to save report details. Please try again.");
+        if (!dbResponse.ok) throw new Error('Failed to save report details.');
+        setLoading(false);
+        onSuccess();
+      };
+
+      // 2. PAYMENT LOGIC (Matched to DonationForm structure)
+      if (amountCollected > 0) {
+        
+        if (!(await loadRazorpay())) throw new Error("Failed to load payment gateway.");
+
+        // Using your paymentService method
+        const order = await createPaymentOrder({ 
+          amount: amountCollected, 
+          name: finalReportData.beneficiaryName || "Work Report",
+          email: "trust@shashijankalyantrust.com", // Fallback if no email provided
+          phone: finalReportData.mobileNumber || "0000000000",
+          type: "WorkReportCollection" 
+        });
+
+        if (!order?.success || !order?.orderId) throw new Error(order?.message || "Order creation failed.");
+
+        const rzp = new window.Razorpay({
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID, 
+          amount: order.amount,
+          currency: order.currency,
+          name: "Shashi Jan Kalyan Trust",
+          description: `Work Report Collection`,
+          order_id: order.orderId,
+          prefill: {
+            name: finalReportData.beneficiaryName,
+            contact: finalReportData.mobileNumber
+          },
+          theme: { color: "#0d4a30" },
+          handler: async (res) => {
+            try {
+              setLoading(true);
+              
+              // Using your paymentService method
+              const verified = await verifyPayment({
+                razorpayPaymentId: res.razorpay_payment_id,
+                razorpayOrderId: res.razorpay_order_id,
+                razorpaySignature: res.razorpay_signature,
+              });
+
+              if (verified?.success) {
+                finalReportData.paymentId = res.razorpay_payment_id;
+                finalReportData.paymentStatus = "COMPLETED";
+                await saveReportToDatabase(finalReportData);
+              } else {
+                alert("Payment verification failed. Report not submitted.");
+                setLoading(false);
+              }
+            } catch (err) {
+              console.error(err);
+              alert("Payment succeeded, but application saving failed. Contact Admin.");
+              setLoading(false);
+            }
+          },
+          modal: { ondismiss: () => setLoading(false) }
+        });
+
+        rzp.open();
+
+      } else {
+        // If amount is 0, just save directly to the database
+        await saveReportToDatabase(finalReportData);
+      }
+
     } catch (error) {
       console.error("Submission error:", error);
-      alert("An unexpected error occurred during submission.");
-    } finally {
-      setIsSubmitting(false);
+      alert(error.message || "An unexpected error occurred during submission.");
+      setLoading(false);
     }
   };
 
   const type = formData.activityType;
+  const amountToPay = Number(formData.amount || 0);
 
   return (
     <div className="mx-auto max-w-4xl rounded-xl bg-white shadow-sm border border-gray-200">
       <div className="flex items-center gap-4 border-b border-gray-200 bg-[#0d4a30] p-4 text-white rounded-t-xl">
-        <button onClick={onBack} className="rounded-full p-2 hover:bg-white/20 transition-colors">
+        <button onClick={onBack} disabled={loading} className="rounded-full p-2 hover:bg-white/20 transition-colors disabled:opacity-50">
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
@@ -194,10 +271,6 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
             <div><span className="text-gray-500 block">Block</span><span className="font-semibold">{formData.block}</span></div>
             <div><span className="text-gray-500 block">Panchayat</span><span className="font-semibold">{formData.panchayat}</span></div>
           </div>
-          {/* <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Activity Location *</label>
-            <input type="text" name="activityLocation" value={formData.activityLocation} onChange={handleChange} required placeholder="e.g. Government School, XYZ" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700" />
-          </div> */}
         </section>
 
         {type && (
@@ -216,7 +289,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Enter Your 12-digit Aadhaar Number]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Type of Disease</label><input type="text" name="diseaseType" value={formData.diseaseType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Loan Amount</label><input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
@@ -237,7 +310,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Enter Your 12-digit Aadhaar Number]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Type of Training</label><input type="text" name="trainingType" value={formData.trainingType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
@@ -250,7 +323,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                   <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Enter Your 12-digit Aadhaar Number]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Category</label>
                     <select name="category" value={formData.category} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md bg-white">
                       <option value="">Select Category</option>
@@ -303,10 +376,14 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                       <p className="text-xs font-bold text-emerald-700 mb-3 uppercase tracking-wider">
                         Member {index + 1} {index === 0 ? " (Primary Leader)" : ""}
                       </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         <div>
                           <label className="text-xs font-semibold text-gray-500 mb-1 block">Member's Name</label>
                           <input type="text" required value={member.name} onChange={(e) => handleMemberChange(index, "name", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-gray-500 mb-1 block">Position</label>
+                          <input type="text" placeholder="e.g. President" value={member.position} onChange={(e) => handleMemberChange(index, "position", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
                         </div>
                         <div>
                           <label className="text-xs font-semibold text-gray-500 mb-1 block">Husband Name</label>
@@ -344,33 +421,21 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
           </div>
           <div className="md:w-1/3">
             <label className="mb-1 block text-sm font-semibold text-gray-700">Amount Collected (₹)</label>
-            <input 
-              type="number" 
-              name="amount" 
-              value={formData.amount} 
-              onChange={handleChange} 
-              min="0"
-              className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700" 
-            />
+            <input type="number" name="amount" value={formData.amount} onChange={handleChange} min="0" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700" />
           </div>
         </section>
 
         <section>
           <div className="mb-4 flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0d4a30] text-xs font-bold text-white">{type ? "5" : "4"}</span>
-            <h3 className="font-bold text-gray-900">Amount PDF</h3>
+            <h3 className="font-bold text-gray-900">Aadhar PDF</h3>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Report Photo or PDF</label>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Aadhar PDF</label>
             <input 
-              type="file" 
-              name="evidence"
-              accept=".jpg,.jpeg,.png,.pdf"
-              onChange={handleFileChange}
+              type="file" name="evidence" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange}
               className={`w-full rounded-md border bg-gray-50 p-2 text-sm text-gray-600 focus:outline-none focus:ring-1 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#0d4a30] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#0a3a25] ${
-                fileError 
-                  ? "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                  : "border-gray-300 focus:border-green-700 focus:ring-green-700"
+                fileError ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-gray-300 focus:border-green-700 focus:ring-green-700"
               }`} 
             />
             {initialData?.evidenceUrl && !fileError && (
@@ -385,9 +450,16 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
         </section>
 
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
-          <button type="button" onClick={onBack} disabled={isSubmitting} className="rounded-md border px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
-          <button type="submit" disabled={isSubmitting || !type} className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-6 py-2 text-sm font-bold text-white hover:bg-[#0a3a25] disabled:opacity-50">
-            {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> {initialData ? "Saving..." : "Submitting..."}</> : <><Send className="h-4 w-4" /> {initialData ? "Save Changes" : "Submit Report"}</>}
+          <button type="button" onClick={onBack} disabled={loading} className="rounded-md border px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+          
+          <button type="submit" disabled={loading || !type} className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-6 py-2 text-sm font-bold text-white hover:bg-[#0a3a25] disabled:opacity-50">
+            {loading ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> {initialData ? "Saving..." : "Processing Payment..."}</>
+            ) : amountToPay > 0 ? (
+              <><CreditCard className="h-4 w-4" /> Pay ₹{amountToPay} & Submit</>
+            ) : (
+              <><Send className="h-4 w-4" /> {initialData ? "Save Changes" : "Submit Report"}</>
+            )}
           </button>
         </div>
       </form>
