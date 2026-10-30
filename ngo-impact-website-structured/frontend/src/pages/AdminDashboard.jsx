@@ -16,6 +16,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("reports");
 
   const [filterDate, setFilterDate] = useState("");
+  const [filterName, setFilterName] = useState("");
   const [filteredReports, setFilteredReports] = useState([]);
   const [filteredShgData, setFilteredShgData] = useState([]);
   const [filteredVolunteerData, setFilteredVolunteerData] = useState([]); 
@@ -65,25 +66,67 @@ export default function AdminDashboard() {
     fetchAdminData();
   }, [navigate]);
 
-  const applyFilter = () => {
-    if (!filterDate) {
-      setFilteredReports(allReports);
-      setFilteredShgData(shgData);
-      setFilteredVolunteerData(volunteerData); 
-      return;
-    }
-    
-    setFilteredReports(allReports.filter(report => report.activityDate === filterDate));
-    setFilteredShgData(shgData.filter(shg => shg.createdAt && shg.createdAt.startsWith(filterDate)));
-    setFilteredVolunteerData(volunteerData.filter(vol => vol.createdAt && vol.createdAt.startsWith(filterDate)));
-  };
 
-  const clearFilter = () => {
-    setFilterDate("");
-    setFilteredReports(allReports);
-    setFilteredShgData(shgData);
-    setFilteredVolunteerData(volunteerData); 
-  };
+const applyFilter = () => {
+  const searchName = filterName.trim().toLowerCase();
+
+  // Filter Work Reports
+  setFilteredReports(
+    allReports.filter((report) => {
+      const matchesDate =
+        !filterDate || report.activityDate === filterDate;
+
+      const matchesName =
+        !searchName ||
+        [report.user?.username, report.beneficiaryName]
+          .some((name) =>
+            name?.toLowerCase().includes(searchName)
+          );
+
+      return matchesDate && matchesName;
+    })
+  );
+
+  // Filter SHG Applications
+  setFilteredShgData(
+    shgData.filter((shg) => {
+      const matchesDate =
+        !filterDate ||
+        shg.createdAt?.startsWith(filterDate);
+
+      const matchesName =
+        !searchName ||
+        shg.name?.toLowerCase().includes(searchName);
+
+      return matchesDate && matchesName;
+    })
+  );
+
+  // Filter Volunteer Registrations
+  setFilteredVolunteerData(
+    volunteerData.filter((volunteer) => {
+      const matchesDate =
+        !filterDate ||
+        volunteer.createdAt?.startsWith(filterDate);
+
+      const matchesName =
+        !searchName ||
+        volunteer.name?.toLowerCase().includes(searchName);
+
+      return matchesDate && matchesName;
+    })
+  );
+};
+
+const clearFilter = () => {
+  setFilterDate("");
+  setFilterName("");
+
+  setFilteredReports(allReports);
+  setFilteredShgData(shgData);
+  setFilteredVolunteerData(volunteerData);
+};
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -222,6 +265,25 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
+
+          
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">
+              Search by Name
+            </label>
+
+            <input
+              type="text"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") applyFilter();
+              }}
+              placeholder="Enter a name..."
+              className="w-56 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700"
+            />
+          </div>
+
           
           <button 
             onClick={applyFilter}
