@@ -17,6 +17,7 @@ export default function AdminDashboard() {
 
   const [filterDate, setFilterDate] = useState("");
   const [filterName, setFilterName] = useState("");
+  const [filterActivityType, setFilterActivityType] = useState("");
   const [filteredReports, setFilteredReports] = useState([]);
   const [filteredShgData, setFilteredShgData] = useState([]);
   const [filteredVolunteerData, setFilteredVolunteerData] = useState([]); 
@@ -68,64 +69,62 @@ export default function AdminDashboard() {
 
 
 const applyFilter = () => {
-  const searchName = filterName.trim().toLowerCase();
+    // 1. Filter Work Reports (Applies Date, Name, AND Activity Type)
+    let filteredReps = [...allReports];
+    
+    if (filterDate) {
+      filteredReps = filteredReps.filter(report => report.activityDate === filterDate);
+    }
+    
+    // FIXED: Changed searchName to filterName
+    if (filterName) {
+      const lowerName = filterName.toLowerCase();
+      filteredReps = filteredReps.filter(report => 
+        (report.beneficiaryName && report.beneficiaryName.toLowerCase().includes(lowerName)) ||
+        (report.user?.username && report.user.username.toLowerCase().includes(lowerName))
+      );
+    }
+    
+    // Apply Activity Type filter (Only for Work Reports)
+    if (filterActivityType) {
+      filteredReps = filteredReps.filter(report => report.activityType === filterActivityType);
+    }
+    
+    setFilteredReports(filteredReps);
 
-  // Filter Work Reports
-  setFilteredReports(
-    allReports.filter((report) => {
-      const matchesDate =
-        !filterDate || report.activityDate === filterDate;
+    // 2. Filter SHG Applications (Applies Date and Name only)
+    let filteredShg = [...shgData];
+    if (filterDate) {
+      filteredShg = filteredShg.filter(shg => shg.createdAt && shg.createdAt.startsWith(filterDate));
+    }
+    // FIXED: Changed searchName to filterName
+    if (filterName) {
+      const lowerName = filterName.toLowerCase();
+      filteredShg = filteredShg.filter(shg => shg.name && shg.name.toLowerCase().includes(lowerName));
+    }
+    setFilteredShgData(filteredShg);
+    
+    // 3. Filter Volunteers (Applies Date and Name only)
+    let filteredVols = [...volunteerData];
+    if (filterDate) {
+      filteredVols = filteredVols.filter(vol => vol.createdAt && vol.createdAt.startsWith(filterDate));
+    }
+    // FIXED: Changed searchName to filterName
+    if (filterName) {
+      const lowerName = filterName.toLowerCase();
+      filteredVols = filteredVols.filter(vol => vol.name && vol.name.toLowerCase().includes(lowerName));
+    }
+    setFilteredVolunteerData(filteredVols);
+  };
 
-      const matchesName =
-        !searchName ||
-        [report.user?.username, report.beneficiaryName]
-          .some((name) =>
-            name?.toLowerCase().includes(searchName)
-          );
-
-      return matchesDate && matchesName;
-    })
-  );
-
-  // Filter SHG Applications
-  setFilteredShgData(
-    shgData.filter((shg) => {
-      const matchesDate =
-        !filterDate ||
-        shg.createdAt?.startsWith(filterDate);
-
-      const matchesName =
-        !searchName ||
-        shg.name?.toLowerCase().includes(searchName);
-
-      return matchesDate && matchesName;
-    })
-  );
-
-  // Filter Volunteer Registrations
-  setFilteredVolunteerData(
-    volunteerData.filter((volunteer) => {
-      const matchesDate =
-        !filterDate ||
-        volunteer.createdAt?.startsWith(filterDate);
-
-      const matchesName =
-        !searchName ||
-        volunteer.name?.toLowerCase().includes(searchName);
-
-      return matchesDate && matchesName;
-    })
-  );
-};
-
-const clearFilter = () => {
-  setFilterDate("");
-  setFilterName("");
-
-  setFilteredReports(allReports);
-  setFilteredShgData(shgData);
-  setFilteredVolunteerData(volunteerData);
-};
+  const clearFilter = () => {
+    setFilterDate("");
+    setFilterName(""); // FIXED: Changed setSearchName to setFilterName
+    setFilterActivityType(""); 
+    setFilteredReports(allReports);
+    setFilteredShgData(shgData);
+    setFilteredVolunteerData(volunteerData); 
+  };
 
 
   const formatDate = (dateString) => {
@@ -284,7 +283,26 @@ const clearFilter = () => {
             />
           </div>
 
-          
+          {/* NEW: CONDITIONAL ACTIVITY TYPE DROPDOWN */}
+          {activeTab === "reports" && (
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">Activity Type</label>
+              <select 
+                value={filterActivityType}
+                onChange={(e) => setFilterActivityType(e.target.value)}
+                className="w-48 rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700 bg-white"
+              >
+                <option value="">All Activities</option>
+                <option value="Health">Healthcare</option>
+                <option value="Soil Testing">Soil Testing</option>
+                <option value="Women Empowerment">Women Empowerment</option>
+                <option value="Awareness">Awareness</option>
+                <option value="SHG">Self-Help Group (SHG)</option>
+                <option value="Education">Education</option>
+              </select>
+            </div>
+          )}
+
           <button 
             onClick={applyFilter}
             className="flex items-center gap-2 rounded-md bg-[#0d4a30] px-4 py-2 text-sm font-bold text-white hover:bg-[#0a3a25]"
@@ -292,7 +310,7 @@ const clearFilter = () => {
             <Search className="h-4 w-4" /> Apply Filter
           </button>
           
-          {filterDate && (
+          {(filterDate || filterName || filterActivityType) && (
             <button 
               onClick={clearFilter}
               className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-100"
