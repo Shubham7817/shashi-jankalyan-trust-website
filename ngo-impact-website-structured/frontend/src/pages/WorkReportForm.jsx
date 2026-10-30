@@ -101,6 +101,12 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. ADD THIS VALIDATION BLOCK
+    if (formData.amount === "" || formData.amount === null) {
+      alert("Please enter the amount collected. (Enter 0 if no amount was collected).");
+      return; // Stops the form submission immediately
+    }
     const volunteerId = sessionStorage.getItem("volunteerId");
     const amountCollected = Number(formData.amount || 0);
 
@@ -284,46 +290,46 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
               
               {type === "Health" && (
                 <>
-                  <div><label className="text-sm font-semibold mb-1 block">Patient Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Type of Disease</label><input type="text" name="diseaseType" value={formData.diseaseType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Loan Amount</label><input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Name of Company</label><input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Patient Name</label><input type="text" required name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" required name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" required name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" required name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" required name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" required name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" required  value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Type of Disease</label><input type="text"  required name="diseaseType" value={formData.diseaseType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Loan Amount</label><input type="number" required  name="loanAmount" value={formData.loanAmount} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Name of Company</label><input type="text" required  name="companyName" value={formData.companyName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                 </>
               )}
 
               {type === "Soil Testing" && (
                 <>
-                  <div><label className="text-sm font-semibold mb-1 block">Farmer Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Farmer Name</label><input type="text" required  name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text"  required name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" required  name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                 </>
               )}
 
               {type === "Women Empowerment" && (
                 <>
-                  <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Type of Training</label><input type="text" name="trainingType" value={formData.trainingType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" required name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" required name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" required name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" required name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" required name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" required name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Type of Training</label><input type="text" required name="trainingType" value={formData.trainingType} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                 </>
               )}
 
               {type === "Awareness" && (
                 <>
-                  <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Name</label><input type="text" required  name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" required  name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" required  name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel"  required name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Aadhaar Number</label><input type="text" required  name="aadhaarNumber" value={formData.aadhaarNumber} placeholder="[Aadhaar Redacted]" onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                   <div><label className="text-sm font-semibold mb-1 block">Category</label>
                     <select name="category" value={formData.category} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md bg-white">
                       <option value="">Select Category</option>
@@ -332,20 +338,20 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                       <option value="General">General</option>
                     </select>
                   </div>
-                  <div><label className="text-sm font-semibold mb-1 block">Village</label><input type="text" name="village" value={formData.village} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Village</label><input type="text"  required  name="village" value={formData.village} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                 </>
               )}
 
               {type === "Education" && (
                 <>
-                  <div><label className="text-sm font-semibold mb-1 block">Student Name</label><input type="text" name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Class / Grade</label><input type="text" name="classOrGrade" value={formData.classOrGrade} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">School Name</label><input type="text" name="schoolName" value={formData.schoolName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
-                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Student Name</label><input type="text" required  name="beneficiaryName" value={formData.beneficiaryName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Father Name</label><input type="text"  required name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mother Name</label><input type="text" required  name="motherName" value={formData.motherName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Class / Grade</label><input type="text" required  name="classOrGrade" value={formData.classOrGrade} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">School Name</label><input type="text" required  name="schoolName" value={formData.schoolName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Mobile Number</label><input type="tel" required  name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">Age</label><input type="number" required  name="age" value={formData.age} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
+                  <div><label className="text-sm font-semibold mb-1 block">DOB</label><input type="date" required  name="dob" value={formData.dob} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" /></div>
                 </>
               )}
             </div>
@@ -383,19 +389,19 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                         </div>
                         <div>
                           <label className="text-xs font-semibold text-gray-500 mb-1 block">Position</label>
-                          <input type="text" placeholder="e.g. President" value={member.position} onChange={(e) => handleMemberChange(index, "position", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                          <input type="text" required placeholder="e.g. President" value={member.position} onChange={(e) => handleMemberChange(index, "position", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
                         </div>
                         <div>
                           <label className="text-xs font-semibold text-gray-500 mb-1 block">Husband Name</label>
-                          <input type="text" value={member.husbandName} onChange={(e) => handleMemberChange(index, "husbandName", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                          <input type="text" required value={member.husbandName} onChange={(e) => handleMemberChange(index, "husbandName", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
                         </div>
                         <div>
                           <label className="text-xs font-semibold text-gray-500 mb-1 block">Mobile Number</label>
-                          <input type="tel" value={member.mobile} onChange={(e) => handleMemberChange(index, "mobile", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                          <input type="tel" required value={member.mobile} onChange={(e) => handleMemberChange(index, "mobile", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
                         </div>
                         <div>
                           <label className="text-xs font-semibold text-gray-500 mb-1 block">Address</label>
-                          <input type="text" value={member.address} onChange={(e) => handleMemberChange(index, "address", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
+                          <input type="text" required value={member.address} onChange={(e) => handleMemberChange(index, "address", e.target.value)} className="w-full border border-gray-300 p-2 text-sm rounded-md" />
                         </div>
                       </div>
                     </div>
@@ -407,7 +413,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
             {["Women Empowerment", "Awareness", "SHG"].includes(type) && (
               <div className="pt-4 border-t border-gray-300">
                 <label className="text-sm font-semibold block mb-1">Beneficiary/Group Photo <span className="text-xs text-red-500">(Max 5MB)</span></label>
-                <input type="file" name="beneficiaryPhoto" accept="image/*" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-green-100 file:text-green-700 hover:file:bg-green-200" />
+                <input type="file" required name="beneficiaryPhoto" accept="image/*" onChange={handleFileChange} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-green-100 file:text-green-700 hover:file:bg-green-200" />
                 {initialData?.beneficiaryPhotoUrl && <p className="text-xs text-green-700 mt-1">A photo is already attached. Upload a new one to replace it.</p>}
               </div>
             )}
@@ -421,7 +427,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
           </div>
           <div className="md:w-1/3">
             <label className="mb-1 block text-sm font-semibold text-gray-700">Amount Collected (₹)</label>
-            <input type="number" name="amount" value={formData.amount} onChange={handleChange} min="0" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700" />
+            <input type="number" required name="amount" value={formData.amount} onChange={handleChange} min="1" className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700" />
           </div>
         </section>
 
@@ -433,7 +439,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
           <div>
             <label className="mb-1 block text-sm font-semibold text-gray-700">Upload Aadhar PDF</label>
             <input 
-              type="file" name="evidence" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange}
+              type="file" name="evidence" required accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange}
               className={`w-full rounded-md border bg-gray-50 p-2 text-sm text-gray-600 focus:outline-none focus:ring-1 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#0d4a30] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-[#0a3a25] ${
                 fileError ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-gray-300 focus:border-green-700 focus:ring-green-700"
               }`} 

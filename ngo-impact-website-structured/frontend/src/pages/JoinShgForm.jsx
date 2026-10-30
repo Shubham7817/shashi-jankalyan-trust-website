@@ -267,7 +267,7 @@ export default function JoinShgForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Husband Name (Optional)</label>
-                  <input type="text" name="husbandName" value={formData.husbandName} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
+                  <input type="text" required  name="husbandName" value={formData.husbandName} onChange={handleTextChange} className="w-full rounded-xl border p-3 text-sm focus:ring-2 focus:ring-green-600" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Address</label>
