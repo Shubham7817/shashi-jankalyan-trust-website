@@ -161,7 +161,7 @@ export default function VolunteerForm() {
       setServerMessage("Initializing payment gateway...");
       if (!(await loadRazorpay())) throw new Error("Failed to load payment gateway.");
 
-      const order = await createPaymentOrder({ amount: 1500, name: d.name, email: d.email, phone: d.phone, type: "VolunteerRegistration" });
+      const order = await createPaymentOrder({ amount: 1, name: d.name, email: d.email, phone: d.phone, type: "VolunteerRegistration" });
       if (!order?.success || !order?.orderId) throw new Error(order?.message || "Order creation failed.");
 
       setServerMessage("Awaiting payment...");
@@ -194,22 +194,29 @@ export default function VolunteerForm() {
               const dbPayload = {
                 ...payload,
                 paymentId: res.razorpay_payment_id,
-                amountPaid: 1500,
+                amountPaid: 1,
                 paymentStatus: "COMPLETED"
               };
 
-              const dbResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/volunteers/submit`, {
+  const dbResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/volunteers/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(dbPayload)
+                body: JSON.stringify(payload)
               });
 
-              if (!dbResponse.ok) throw new Error('Failed to save to database');
+              const dbResult = await dbResponse.json();
 
+              if (!dbResponse.ok || !dbResult.success) {
+                throw new Error(dbResult.message || 'Failed to save to database');
+              }
+
+              // SPECIFIC CHANGE: Update this navigate block to pass the credentials
               navigate("/volunteer-success", {
                 state: {
                   transactionId: res.razorpay_payment_id,
                   name: d.name,
+                  username: dbResult.username, // Reads username from Spring Boot Map.of()
+                  password: dbResult.password  // Reads password from Spring Boot Map.of()
                 }
               });
 
@@ -364,7 +371,7 @@ export default function VolunteerForm() {
         <div className=" border-t border-gray-200">
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center mb-6">
             <h3 className="font-bold text-lg text-emerald-900 mb-2">Registration Contribution</h3>
-            <p className="text-sm text-emerald-700 mb-4">A one-time registration fee of ₹1500 is required.</p>
+            <p className="text-sm text-emerald-700 mb-4">A one-time registration fee of ₹1 is required.</p>
             <Button 
               type="submit" 
               disabled={loading || !!duplicateError || isCheckingDuplicate} 
@@ -372,7 +379,7 @@ export default function VolunteerForm() {
                 duplicateError ? "bg-gray-400 cursor-not-allowed text-white" : "bg-[#0d4a30] hover:bg-green-900 text-white"
               }`}
             >
-              {loading || isCheckingDuplicate ? <><Loader2 className="animate-spin h-5 w-5" /> Processing...</> : "Pay ₹1500 & Register"}
+              {loading || isCheckingDuplicate ? <><Loader2 className="animate-spin h-5 w-5" /> Processing...</> : "Pay ₹1 & Register"}
             </Button>
           </div>
         </div>
