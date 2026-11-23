@@ -5,18 +5,21 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class CorsConfig
-        implements WebMvcConfigurer {
+public class CorsConfig implements WebMvcConfigurer {
 
     @Override
-    public void addCorsMappings(
-            CorsRegistry registry
-    ) {
+    public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://shashi-jankalyan-trust-website-dusky.vercel.app")
-                .allowedMethods("GET", "POST","PUT", "DELETE", "OPTIONS")
+                .allowedOrigins(
+                        "https://shashi-jankalyan-trust-website-dusky.vercel.app",
+                        "http://localhost:5173",
+                        "https://shashijankalyantrust.com",
+                        "https://shashijankalyantrust.org",
+                        "https://www.shashijankalyantrust.com",
+                        "https://www.shashijankalyantrust.org"
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(false);
     }
-
 }
