@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -34,6 +35,11 @@ public class VolunteerService {
         this.actualVolunteerRepository = actualVolunteerRepository;
         this.userCredentialRepository = userCredentialRepository;
         this.volunteerProfileRepository = volunteerProfileRepository;
+    }
+
+
+    public List<Volunteer> getAllVolunteers() {
+        return volunteerRepository.findAll();
     }
 
     // All 4 tables save together, or none do.

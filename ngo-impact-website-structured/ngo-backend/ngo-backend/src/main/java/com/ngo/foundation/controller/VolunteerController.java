@@ -1,6 +1,7 @@
 package com.ngo.foundation.controller;
 
 import com.ngo.foundation.dto.Volunteer.VolunteerRequest;
+import com.ngo.foundation.entity.ShgMember;
 import com.ngo.foundation.entity.Volunteer;
 import com.ngo.foundation.repository.VolunteerRepository;
 import com.ngo.foundation.service.EmailService;
@@ -59,5 +60,10 @@ public class VolunteerController {
         return ResponseEntity.ok(exists
                 ? Map.of("exists", true, "message", "You have already registered as a volunteer with these details.")
                 : Map.of("exists", false));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Volunteer>> getAllVolunteers() {
+        return ResponseEntity.ok(volunteerService.getAllVolunteers());
     }
 }
