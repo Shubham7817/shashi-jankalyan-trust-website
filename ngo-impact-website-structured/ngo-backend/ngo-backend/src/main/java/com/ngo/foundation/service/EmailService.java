@@ -1,17 +1,32 @@
 package com.ngo.foundation.service;
 
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    private final RestClient restClient;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    @Value("${brevo.api-key:}")
+    private String apiKey;
+
+    @Value("${mail.from-email:}")
+    private String fromEmail;
+
+    @Value("${mail.from-name:Shashi Jan Kalyan Trust}")
+    private String fromName;
+
+    public EmailService() {
+        this.restClient = RestClient.builder()
+                .baseUrl("https://api.brevo.com/v3")
+                .build();
     }
 
     @Async
@@ -23,15 +38,6 @@ public class EmailService {
     ) {
 
         try {
-
-            SimpleMailMessage message = new SimpleMailMessage();
-
-            message.setFrom(System.getenv("MAIL_USERNAME"));
-            message.setTo(toEmail);
-
-            message.setSubject(
-                    "Welcome to Shashi Jan Kalyan Trust - Your Login Details"
-            );
 
             String firstName = name != null && !name.isBlank()
                     ? name.trim().split("\\s+")[0]
@@ -58,9 +64,20 @@ public class EmailService {
                             "Warm Regards,\n" +
                             "Shashi Jan Kalyan Trust Team";
 
-            message.setText(emailBody);
+            Map<String, Object> body = Map.of(
+                    "sender", Map.of("name", fromName, "email", fromEmail),
+                    "to", List.of(Map.of("email", toEmail, "name", firstName)),
+                    "subject", "Welcome to Shashi Jan Kalyan Trust - Your Login Details",
+                    "textContent", emailBody
+            );
 
-            mailSender.send(message);
+            restClient.post()
+                    .uri("/smtp/email")
+                    .header("api-key", apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .toBodilessEntity();
 
             System.out.println(
                     "Welcome email successfully sent to: " + toEmail
