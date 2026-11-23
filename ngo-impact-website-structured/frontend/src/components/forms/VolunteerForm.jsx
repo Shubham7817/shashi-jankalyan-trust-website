@@ -201,7 +201,7 @@ export default function VolunteerForm() {
   const dbResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/volunteers/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(dbPayload)
               });
 
               const dbResult = await dbResponse.json();
@@ -223,11 +223,11 @@ export default function VolunteerForm() {
             } else {
               navigate("/donation-failed");
             }
-          } catch (err) {
-            console.error(err);
-            setError("Payment succeeded, but application saving failed. Contact Admin with ID: " + res.razorpay_payment_id);
-            setLoading(false);
-          }
+            } catch (err) {
+              console.error("Save failed:", err);
+              setError(`Payment succeeded (ID: ${res.razorpay_payment_id}), but saving failed: ${err.message}`);
+              setLoading(false);
+            }
         },
         modal: { ondismiss: () => { setLoading(false); setServerMessage(""); } }
       });
