@@ -3,6 +3,7 @@ package com.ngo.foundation.controller;
 import com.ngo.foundation.dto.Volunteer.VolunteerRequest;
 import com.ngo.foundation.entity.Volunteer;
 import com.ngo.foundation.repository.VolunteerRepository;
+import com.ngo.foundation.service.EmailService;
 import com.ngo.foundation.service.VolunteerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,44 +26,38 @@ public class VolunteerController {
     @Autowired
     private VolunteerService volunteerService;
 
+    @Autowired
+    private EmailService emailService;
+
     @PostMapping("/submit")
     public ResponseEntity<?> submitVolunteerForm(@RequestBody VolunteerRequest request) {
-        Map<String, Object> response = volunteerService.saveVolunteer(request);
+        try {
+            Map<String, Object> response = volunteerService.saveVolunteer(request);
 
-        if (Boolean.TRUE.equals(response.get("success"))) {
-            return ResponseEntity.ok(response);
-        } else if ("This person has already filled the form.".equals(response.get("message"))) {
-            // Return 409 Conflict if duplicate is found
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        } else {
-            // Return 500 for other database errors
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            if (Boolean.TRUE.equals(response.get("success"))) {
+                try {   // email AFTER the data is committed; a mail failure must not lose the registration
+                    emailService.sendWelcomeEmail(request.getEmail(), request.getName(),
+                            (String) response.get("username"), (String) response.get("password"));
+                } catch (Exception mailEx) {
+                    mailEx.printStackTrace();
+                }
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);   // duplicates
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Throwable root = org.springframework.core.NestedExceptionUtils.getMostSpecificCause(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Save failed: " + root.getMessage()));
         }
     }
 
     @PostMapping("/check")
     public ResponseEntity<?> checkVolunteerExists(@RequestBody VolunteerRequest request) {
-        // Uses your existing repository method to check for duplicates
-        boolean exists = volunteerRepository.existsByNameAndEmailAndPhone(
-                request.getEmail(),
-                request.getPhone(),
-                request.getName()
-        );
-
-        if (exists) {
-            return ResponseEntity.ok(Map.of(
-                    "exists", true,
-                    "message", "You have already registered as a volunteer with these details."
-            ));
-        }
-
-        return ResponseEntity.ok(Map.of("exists", false));
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<Volunteer>> getAllVolunteers() {
-        // Fetches all volunteers, sorted by newest first
-        List<Volunteer> volunteers = volunteerRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(volunteers);
+        boolean exists = volunteerRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone());
+        return ResponseEntity.ok(exists
+                ? Map.of("exists", true, "message", "You have already registered as a volunteer with these details.")
+                : Map.of("exists", false));
     }
 }

@@ -30,6 +30,8 @@ public class Volunteer {
     private String district;
     private String block;
     private String panchayat;
+
+    @Column(columnDefinition = "TEXT")
     private String address;
     private String pincode;
 

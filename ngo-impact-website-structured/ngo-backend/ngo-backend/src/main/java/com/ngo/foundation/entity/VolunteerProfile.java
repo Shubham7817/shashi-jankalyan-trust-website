@@ -74,7 +74,7 @@ public class VolunteerProfile {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "member_id", unique = true, nullable = false)
+    @Column(name = "member_id", unique = true, nullable = false, length = 50)
     private String memberId;
 
     @Column(name = "volunteer_role")

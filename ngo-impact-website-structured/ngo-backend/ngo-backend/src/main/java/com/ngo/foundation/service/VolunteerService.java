@@ -42,69 +42,62 @@ public class VolunteerService {
     @Transactional // Ensures all 3 tables save successfully, or none do
     public Map<String, Object> saveVolunteer(VolunteerRequest request) {
         try {
-            // 1. Check for existing user
-            if (volunteerRepository.existsByNameAndEmailAndPhone(request.getEmail(), request.getPhone(), request.getName())) {
-                return Map.of("success", false, "message", "This person has already registered.");
+            // 1. Duplicate checks
+            if (volunteerRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
+                return Map.of("success", false, "duplicate", true,
+                        "message", "This person has already registered.");
+            }
+            if (request.getPaymentId() != null && volunteerRepository.existsByPaymentId(request.getPaymentId())) {
+                return Map.of("success", false, "duplicate", true,
+                        "message", "This payment is already used for a registration.");
             }
 
-            // 2. Generate Username and Password (firstname@ + digits)
+            // 2. Generate credentials
             String firstName = request.getName().trim().split("\\s+")[0].toLowerCase();
             String phone = request.getPhone() != null ? request.getPhone().trim() : "0000";
-            String last4Phone = phone.length() >= 4 ? phone.substring(phone.length() - 4) : "0000";
+            String last4 = phone.length() >= 4 ? phone.substring(phone.length() - 4) : "0000";
 
-            String generatedUsername = firstName + "." + last4Phone;
-            String generatedPassword = firstName + "@" + (int)((Math.random() * 9000) + 1000); // 4 random digits
+            String username = firstName + "." + last4;
+            while (userCredentialRepository.existsByUsername(username)) {
+                username = firstName + "." + last4 + (int) (Math.random() * 90 + 10);
+            }
+            String rawPassword = firstName + "@" + (int) ((Math.random() * 9000) + 1000);
 
-            // 3. Save to UserCredentials Table
+
+            // 3. User credentials
             UserCredential credentials = new UserCredential();
-            credentials.setUsername(generatedUsername);
-            credentials.setPasswordHash(generatedPassword);
+            credentials.setUsername(username);
+            credentials.setPasswordHash(rawPassword); // inject BCryptPasswordEncoder
             credentials.setAccountStatus("ACTIVE");
             userCredentialRepository.save(credentials);
 
-            //save to vounteerprofile table
-            // 3A. Save Volunteer Profile
+            // 4. Profile
             VolunteerProfile profile = new VolunteerProfile();
-
-// Link profile to the newly created login account
             profile.setUser(credentials);
-
             profile.setFullName(request.getName());
             profile.setVolunteerRole("Volunteer");
             profile.setJoiningDate(java.time.LocalDate.now());
-
             profile.setState(request.getState());
             profile.setDistrict(request.getDistrict());
             profile.setBlock(request.getBlock());
             profile.setPanchayat(request.getPanchayat());
+            profile.setMemberId("T" + System.nanoTime());          // short, unique temp value
+            volunteerProfileRepository.saveAndFlush(profile);      // flush so the ID exists
 
-// Temporary unique member ID to allow initial insert
-            profile.setMemberId("TEMP-" + java.util.UUID.randomUUID());
-
-            volunteerProfileRepository.save(profile);
-
-// Generate final Member ID using profile's generated database ID
             String monthYear = java.time.LocalDate.now()
                     .format(java.time.format.DateTimeFormatter.ofPattern("MMyy"));
-
-            String serialNumber = String.format("%22d", profile.getId());
-
-            String memberId = "SJKT-" + monthYear + "-" + serialNumber;
-
-            profile.setMemberId(memberId);
-
-// Update with final member ID
+            profile.setMemberId("SJKT-" + monthYear + "-" + String.format("%04d", profile.getId()));
             volunteerProfileRepository.save(profile);
 
-            // 4. Save to ActualVolunteer Table
-            ActualVolunteer actualVolunteer = new ActualVolunteer();
-            actualVolunteer.setName(request.getName());
-            actualVolunteer.setPhone(request.getPhone());
-            actualVolunteer.setEmail(request.getEmail());
-            actualVolunteer.setCountry(request.getCountry());
-            actualVolunteer.setState(request.getState());
-            actualVolunteer.setCity(request.getDistrict()); // Mapping District to City
-            actualVolunteerRepository.save(actualVolunteer);
+            // 5. ActualVolunteer (same as yours)
+            ActualVolunteer av = new ActualVolunteer();
+            av.setName(request.getName());
+            av.setPhone(request.getPhone());
+            av.setEmail(request.getEmail());
+            av.setCountry(request.getCountry());
+            av.setState(request.getState());
+            av.setCity(request.getDistrict());
+            actualVolunteerRepository.save(av);
 
             // 5. Save to main Volunteer Table
             Volunteer volunteer = new Volunteer();
@@ -142,20 +135,20 @@ public class VolunteerService {
             volunteer.setAmountPaid(request.getAmountPaid());
             volunteer.setPaymentStatus(request.getPaymentStatus());
 
-            volunteerRepository.save(volunteer);
+            volunteerRepository.saveAndFlush(volunteer);
             emailService.sendWelcomeEmail(
                     request.getEmail(),
                     request.getName(),
-                    generatedUsername,
-                    generatedPassword
+                    username,
+                    rawPassword
             );
 
             // 6. Return the raw credentials so React can display them to the user ONCE
             return Map.of(
                     "success", true,
                     "message", "Volunteer saved successfully.",
-                    "username", generatedUsername,
-                    "password", generatedPassword
+                    "username", username,
+                    "password", rawPassword
             );
 
         } catch (Exception e) {
