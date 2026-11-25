@@ -30,6 +30,20 @@ export default function About() {
       highlight: false,
     },
     {
+      initials: "Sk",
+      name: "Sunny Kumar",
+      role: "Chief Executive Officer(CEO)",
+      description: "Driving our core mission, program execution, and sustainable social impact.",
+      highlight: false,
+    },
+    {
+      initials: "SK",
+      name: "Shubham Kumar",
+      role: "Chief Technology Officer(CTO)",
+      description: "Leading digital transformation",
+      highlight: false,
+    },
+    {
       initials: "GK",
       name: "Govinda Kumar",
       role: "TREASURER",

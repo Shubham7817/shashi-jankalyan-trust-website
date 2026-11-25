@@ -194,7 +194,7 @@ export default function VolunteerForm() {
               const dbPayload = {
                 ...payload,
                 paymentId: res.razorpay_payment_id,
-                amountPaid: 1,
+                amountPaid: 1500,
                 paymentStatus: "COMPLETED"
               };
 
@@ -371,7 +371,7 @@ export default function VolunteerForm() {
         <div className=" border-t border-gray-200">
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center mb-6">
             <h3 className="font-bold text-lg text-emerald-900 mb-2">Registration Contribution</h3>
-            <p className="text-sm text-emerald-700 mb-4">A one-time registration fee of ₹1 is required.</p>
+            <p className="text-sm text-emerald-700 mb-4">A one-time registration fee of ₹1500 is required.</p>
             <Button 
               type="submit" 
               disabled={loading || !!duplicateError || isCheckingDuplicate} 
@@ -379,7 +379,7 @@ export default function VolunteerForm() {
                 duplicateError ? "bg-gray-400 cursor-not-allowed text-white" : "bg-[#0d4a30] hover:bg-green-900 text-white"
               }`}
             >
-              {loading || isCheckingDuplicate ? <><Loader2 className="animate-spin h-5 w-5" /> Processing...</> : "Pay ₹1 & Register"}
+              {loading || isCheckingDuplicate ? <><Loader2 className="animate-spin h-5 w-5" /> Processing...</> : "Pay ₹1500 & Register"}
             </Button>
           </div>
         </div>

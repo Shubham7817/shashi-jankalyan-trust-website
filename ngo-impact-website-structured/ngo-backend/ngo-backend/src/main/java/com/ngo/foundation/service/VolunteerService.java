@@ -9,6 +9,7 @@ import com.ngo.foundation.repository.ActualVolunteerRepository;
 import com.ngo.foundation.repository.UserCredentialRepository;
 import com.ngo.foundation.repository.VolunteerProfileRepository;
 import com.ngo.foundation.repository.VolunteerRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ public class VolunteerService {
 
 
     public List<Volunteer> getAllVolunteers() {
-        return volunteerRepository.findAll();
+        return volunteerRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     // All 4 tables save together, or none do.
