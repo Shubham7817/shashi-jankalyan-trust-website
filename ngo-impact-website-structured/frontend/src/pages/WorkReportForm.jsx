@@ -45,6 +45,7 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
     companyName: initialData?.companyName || "",
     trainingType: initialData?.trainingType || "",
     shgName: initialData?.shgName || "",
+    presidentEmail: initialData?.presidentEmail || "",
     classOrGrade: initialData?.classOrGrade || "",
     schoolName: initialData?.schoolName || ""
   });
@@ -362,6 +363,20 @@ export default function WorkReportForm({ profile, initialData, onBack, onSuccess
                 <div className="md:w-1/3">
                   <label className="text-sm font-semibold mb-1 block">Name of SHG Group</label>
                   <input type="text" name="shgName" required value={formData.shgName} onChange={handleChange} className="w-full border border-gray-300 p-2 rounded-md" />
+                </div>
+
+                {/* NEW: President's Email Field */}
+                <div>
+                  <label className="text-sm font-semibold mb-1 block">Email of President</label>
+                  <input
+                    type="email"
+                    name="presidentEmail"
+                    required
+                    placeholder="e.g. president@example.com"
+                    value={formData.presidentEmail}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between mt-4 border-b border-green-200 pb-2">

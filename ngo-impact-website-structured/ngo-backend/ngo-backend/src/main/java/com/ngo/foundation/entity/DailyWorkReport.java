@@ -69,6 +69,7 @@ public class DailyWorkReport {
 
     // Specific to SHG
     private String shgName;
+    private String presidentEmail;
     private Integer totalMembers;
     @Column(columnDefinition = "TEXT")
     private String additionalMembersDetails;

@@ -49,6 +49,7 @@ public class WorkReportRequest {
     private String companyName;
     private String trainingType;
     private String shgName;
+    private String presidentEmail;
     private Integer totalMembers;
     private String additionalMembersDetails;
     private String classOrGrade;

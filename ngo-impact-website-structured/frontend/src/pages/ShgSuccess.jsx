@@ -322,7 +322,7 @@ export default function ShgSuccess() {
                   <div style={{ width: "200px", margin: "0 auto", borderBottom: "1px solid #1f2937", paddingBottom: "8px", marginBottom: "8px", display: "flex", justifyContent: "center" }}>
                     <img src={img2} alt="Authorized Signature" style={{ height: "64px", objectFit: "contain" }} />
                   </div>
-                  <p style={{ fontWeight: "bold", margin: 0 }}>स्टाप का हस्ताक्षर</p>
+                  <p style={{ fontWeight: "bold", margin: 0 }}>स्टाफ का हस्ताक्षर</p>
                   <p style={{ fontSize: "14px", margin: 0 }}>(Authorized Signatory)</p>
                 </td>
               </tr>

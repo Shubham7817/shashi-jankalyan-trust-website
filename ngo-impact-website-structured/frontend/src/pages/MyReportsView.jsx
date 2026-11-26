@@ -63,6 +63,9 @@ const renderSpecificDetails = (report) => {
     
     if (report.activityType === "SHG" && report.shgName) {
       details.push(`SHG: ${report.shgName}`);
+      if (report.presidentEmail) {
+      details.push(`President Email: ${report.presidentEmail}`); // <--- ADD THIS
+      }
       details.push(`Total Members: ${report.totalMembers || 0}`);
       
       try {

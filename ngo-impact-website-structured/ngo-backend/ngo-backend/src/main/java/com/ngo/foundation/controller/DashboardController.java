@@ -6,6 +6,7 @@ import com.ngo.foundation.entity.VolunteerProfile;
 import com.ngo.foundation.repository.DailyWorkReportRepository;
 import com.ngo.foundation.repository.UserCredentialRepository;
 import com.ngo.foundation.repository.VolunteerProfileRepository;
+import com.ngo.foundation.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,8 @@ public class DashboardController {
     private VolunteerProfileRepository profileRepo;
     @Autowired
     private DailyWorkReportRepository reportRepo;
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
@@ -103,6 +106,12 @@ public class DashboardController {
         // The 'report' object automatically binds the 'evidenceUrl' string sent from React.
 
         DailyWorkReport savedReport = reportRepo.save(report);
+        // Automatically email the SHG receipt to the President
+        if ("SHG".equalsIgnoreCase(savedReport.getActivityType())
+                && savedReport.getPresidentEmail() != null
+                && !savedReport.getPresidentEmail().isBlank()) {
+            emailService.sendShgReceiptEmail(savedReport);
+        }
         return ResponseEntity.ok(savedReport);
     }
 

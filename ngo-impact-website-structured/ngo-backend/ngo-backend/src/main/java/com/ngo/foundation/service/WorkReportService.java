@@ -85,6 +85,7 @@ public class WorkReportService {
         report.setCompanyName(request.getCompanyName());
         report.setTrainingType(request.getTrainingType());
         report.setShgName(request.getShgName());
+        report.setPresidentEmail(request.getPresidentEmail());
         report.setTotalMembers(request.getTotalMembers());
         report.setAdditionalMembersDetails(request.getAdditionalMembersDetails());
         report.setClassOrGrade(request.getClassOrGrade());
