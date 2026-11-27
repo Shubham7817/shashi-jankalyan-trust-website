@@ -8,4 +8,5 @@ import java.util.List;
 public interface DailyWorkReportRepository extends JpaRepository<DailyWorkReport, Long> {
     List<DailyWorkReport> findByUser_IdOrderByActivityDateDesc(Long userId);
     List<DailyWorkReport> findAllByOrderByActivityDateDesc();
+    long countByActivityType(String activityType);
 }

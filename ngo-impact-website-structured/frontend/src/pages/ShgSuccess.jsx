@@ -209,15 +209,15 @@ export default function ShgSuccess() {
           className="font-serif border-4 border-double border-green-900 text-gray-900 text-left"
         >
           <div style={{ textAlign: "center", borderBottom: "2px solid #14532d", paddingBottom: "16px", marginBottom: "24px" }}>
-            <p style={{ fontSize: "14px", fontWeight: "bold", margin: 0 }}>बिहार सरकार से पंजीकृत 90/2020</p>
+            <p style={{ fontSize: "14px", fontWeight: "bold", margin: 0 }}>Registered under Bihar Government 90/2020</p>
             
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", margin: "8px 0" }}>
               <img src={img} alt="Trust Logo" style={{ width: "56px", height: "56px", objectFit: "contain" }} />
-              <h1 style={{ fontSize: "36px", fontWeight: "800", color: "#0d4a30", margin: 0 }}>शशि जन कल्याण ट्रस्ट (NGO)</h1>
+              <h1 style={{ fontSize: "36px", fontWeight: "800", color: "#0d4a30", margin: 0 }}>Shashi Jan Kalyan Trust(NGO)</h1>
             </div>
 
-            <p style={{ fontSize: "18px", fontWeight: "600", margin: 0 }}>दिनकर नगर, बरबीघा, शेखपुरा, बिहार 811101</p>
-            <p style={{ fontSize: "14px", margin: "4px 0 0 0" }}>Email: shashijankalyantrast012345@gmail.com | Helpline: 6203766882</p>
+            <p style={{ fontSize: "18px", fontWeight: "600", margin: 0 }}>Dikar Nagar, Barbigha, Shiekpura , KishanGanj, Bihar 811101</p>
+            <p style={{ fontSize: "14px", margin: "4px 0 0 0" }}>Email: shashijankalyantrast012345@gmail.com</p>
           </div>
 
           <div style={{ fontSize: "20px", fontWeight: "bold", textAlign: "center", marginBottom: "32px", textDecoration: "underline", textUnderlineOffset: "4px" }}>

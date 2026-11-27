@@ -68,6 +68,7 @@ public class DailyWorkReport {
     private String trainingType;
 
     // Specific to SHG
+    private String shgGroupId;
     private String shgName;
     private String presidentEmail;
     private Integer totalMembers;

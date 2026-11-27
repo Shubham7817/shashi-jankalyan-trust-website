@@ -6,10 +6,12 @@ import com.ngo.foundation.entity.VolunteerProfile;
 import com.ngo.foundation.repository.DailyWorkReportRepository;
 import com.ngo.foundation.repository.UserCredentialRepository;
 import com.ngo.foundation.repository.VolunteerProfileRepository;
+import com.ngo.foundation.repository.VolunteerRepository;
 import com.ngo.foundation.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.ngo.foundation.entity.Volunteer;
 
 import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
@@ -36,6 +38,8 @@ public class DashboardController {
     private DailyWorkReportRepository reportRepo;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private VolunteerRepository volunteerRepository;
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
@@ -83,7 +87,10 @@ public class DashboardController {
                 "beneficiariesReached", beneficiaries,
                 "reportsSubmitted", activitiesCompleted
         ));
-        dashboardData.put("recentActivity", recentReports.stream().limit(5));
+        dashboardData.put("recentActivity",
+                recentReports.stream()
+                        .limit(5)
+                        .toList());
 
         return ResponseEntity.ok(dashboardData);
     }
@@ -98,7 +105,11 @@ public class DashboardController {
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("User not found");
         }
-
+        if ("SHG".equalsIgnoreCase(report.getActivityType())) {
+            long existingCount = reportRepo.countByActivityType("SHG");
+            String nextGroupId = String.format("SJKT-SHG-%04d", existingCount + 1); // e.g., SJKT-SHG-0001
+            report.setShgGroupId(nextGroupId);
+        }
         // Link the report to the specific user
         report.setUser(user.get());
 
@@ -106,11 +117,27 @@ public class DashboardController {
         // The 'report' object automatically binds the 'evidenceUrl' string sent from React.
 
         DailyWorkReport savedReport = reportRepo.save(report);
-        // Automatically email the SHG receipt to the President
-        if ("SHG".equalsIgnoreCase(savedReport.getActivityType())
-                && savedReport.getPresidentEmail() != null
-                && !savedReport.getPresidentEmail().isBlank()) {
-            emailService.sendShgReceiptEmail(savedReport);
+
+        // 2. Get Volunteer Name & Email (adjust based on how your VolunteerProfile/Volunteer is linked)
+        String volunteerName = "Volunteer";
+        String volunteerEmail = "";
+
+// 1. Get volunteer's full name from VolunteerProfile
+        var profileOpt = profileRepo.findByUser_Id(userId);
+        if (profileOpt.isPresent()) {
+            volunteerName = profileOpt.get().getFullName();
+
+            // 2. Get volunteer's email from Volunteer table using their full name
+            volunteerEmail = volunteerRepository.findFirstByNameIgnoreCase(volunteerName)
+                    .map(Volunteer::getEmail)
+                    .orElse("");
+        }
+        // 3. Trigger Emails
+        if ("SHG".equalsIgnoreCase(savedReport.getActivityType())) {
+            emailService.sendShgAndPaymentReceipts(savedReport, volunteerName, volunteerEmail);
+        } else if (savedReport.getAmount() != null && savedReport.getAmount() > 0 && !volunteerEmail.isBlank()) {
+            // For non-SHG paid work updates, send Payment Receipt to volunteer
+            emailService.sendPaymentReceiptOnly(savedReport, volunteerName, volunteerEmail);
         }
         return ResponseEntity.ok(savedReport);
     }
@@ -119,6 +146,8 @@ public class DashboardController {
     public ResponseEntity<?> getAllUserReports(@PathVariable Long userId) {
         // Fetch all reports for the user, ordered by date descending
         List<DailyWorkReport> allReports = reportRepo.findByUser_IdOrderByActivityDateDesc(userId);
+
+
         return ResponseEntity.ok(allReports);
     }
 

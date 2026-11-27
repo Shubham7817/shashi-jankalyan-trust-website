@@ -62,9 +62,12 @@ const renderSpecificDetails = (report) => {
     if (report.amount) details.push(`Collected: ₹${report.amount}`);
     
     if (report.activityType === "SHG" && report.shgName) {
+      if (report.shgGroupId) {
+      details.push(`Group ID: ${report.shgGroupId}`); 
+      }
       details.push(`SHG: ${report.shgName}`);
       if (report.presidentEmail) {
-      details.push(`President Email: ${report.presidentEmail}`); // <--- ADD THIS
+      details.push(`President Email: ${report.presidentEmail}`); 
       }
       details.push(`Total Members: ${report.totalMembers || 0}`);
       
